@@ -1,0 +1,9 @@
+*.ncb
+*.suo
+*.vcproj.*.user
+*_i.c
+*_p.c
+*_h.h
+*.aps
+[Dd]ebug/
+[Rr]elease/

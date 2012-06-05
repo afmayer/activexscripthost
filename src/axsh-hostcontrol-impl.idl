@@ -1,0 +1,25 @@
+[uuid(C6EFF154-560F-4fb1-A376-F59B933AA8A9),
+ version(1.0),
+ helpstring("Tcl ActiveXScriptHost")]
+
+library TclActiveXScriptHost
+{
+    importlib("stdole32.tlb");
+
+    /* ITclHostControl vtable */
+    [uuid(DE08C005-CADC-4444-90DD-E044251CB7E8), dual, hidden,
+     helpstring("Host Control Interface")]
+    interface ITclHostControlVtbl : IDispatch
+    {
+        [id(1)] HRESULT GetStringVar([in] BSTR variable,
+            [out,retval] BSTR *value);
+    }
+
+    /* ITclHostControl object */
+    [uuid(45397C60-A814-4c6d-A155-1F2D872B1E83),
+     helpstring("Host Control Object")]
+    coclass ITclHostControl
+    {
+        [default] interface ITclHostControlVtbl;
+    }
+}
