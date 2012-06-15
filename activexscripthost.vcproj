@@ -189,7 +189,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\axsh-string-to-guid.c"
+				RelativePath=".\src\axsh-string-guid-util.c"
 				>
 			</File>
 			<File
@@ -227,7 +227,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\headers\axsh-string-to-guid.h"
+				RelativePath=".\headers\axsh-string-guid-util.h"
 				>
 			</File>
 			<File
