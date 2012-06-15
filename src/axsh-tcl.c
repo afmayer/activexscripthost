@@ -94,11 +94,13 @@ int AXSH_Tcl_OpenEngine(ClientData clientData, Tcl_Interp *interp, int objc,
         goto failAndFreeEngineState;
     }
 
-    /* add named item: global */
-    pEngineState->pActiveScript->lpVtbl-> // TODO this is a test of adding a named item
+    // TODO BEGIN OF TEST CODE TO ADD NAMED ITEM
+    pEngineState->pActiveScript->lpVtbl->
         AddNamedItem(pEngineState->pActiveScript, L"global", SCRIPTITEM_GLOBALMEMBERS|SCRIPTITEM_ISVISIBLE);
+    // TODO END OF TEST CODE TO ADD NAMED ITEM
 
-    /* create a Tcl command for our new engine */
+    /* create a Tcl command for our new engine - pass a
+       pointer (client data) to the engine state when the command is handled */
     _snprintf(buffer, sizeof(buffer), AXSH_NAMESPACE "::handle0x%p",
         pEngineState);
     buffer[sizeof(buffer)-1] = 0;

@@ -1,5 +1,11 @@
 #include "axsh-include-all.h"
 
+/* This contains:
+ *     static method implementations for interfaces
+ *     static vtables for each interface
+ *     helper functions for initialization
+ */
+
 /* -------------------------------------------------------------------------
    ------------------------- IActiveScriptSite -----------------------------
    ------------------------------------------------------------------------- */
