@@ -52,26 +52,25 @@ static STDMETHODIMP QueryInterface(AXSH_TclActiveScriptSite *this, REFIID riid,
 }
 
 // Called by the script engine to get any pointers to our own host-defined
-// objects whose functions a script may directly call. We don't implement
-// any such objects here, so this is just a stub.
+// objects whose functions a script may directly call.
 static STDMETHODIMP GetItemInfo(AXSH_TclActiveScriptSite *this,
                                 LPCOLESTR objectName, DWORD dwReturnMask,
                                 IUnknown **objPtr, ITypeInfo **typeInfo)
 {
-    HRESULT hr;
-
     if (dwReturnMask & SCRIPTINFO_IUNKNOWN) *objPtr = 0;
     if (dwReturnMask & SCRIPTINFO_ITYPEINFO) *typeInfo = 0;
 
-    if (!wcscmp(objectName, L"global"))
+    if (!wcscmp(objectName, L"tcl"))
     {
         if (dwReturnMask & SCRIPTINFO_IUNKNOWN)
-            *objPtr = TODO_IUnknownOfITclHostControlObj();
+            *objPtr = (IUnknown *)(this->pEngineState->pTclHostControl);
 
         if (dwReturnMask & SCRIPTINFO_ITYPEINFO)
         {
             TODO_GetTypeLibForITclHostControlObj();
         }
+
+        return S_OK;
     }
 
     /* unknown object name */

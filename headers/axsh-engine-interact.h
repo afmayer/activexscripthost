@@ -15,6 +15,8 @@ typedef struct AXSH_EngineState_ {
     IActiveScript         *pActiveScript;
     IActiveScriptParse    *pActiveScriptParse;
 
+    struct AXSH_TclHostControl_ *pTclHostControl;
+
     Tcl_Interp  *pTclInterp;
     Tcl_Command  pTclCommandToken; /* this is actually a pointer */
     Tcl_Obj     *pErrorResult;

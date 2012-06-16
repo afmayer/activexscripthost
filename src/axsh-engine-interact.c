@@ -7,6 +7,7 @@ char * AXSH_OpenScriptEngine(AXSH_EngineState *pEngineState, GUID *pEngineGuid,
     //      so memory cleanup is easier
     HRESULT hr;
     AXSH_TclActiveScriptSite *pTemp;
+    AXSH_TclHostControl *pTempHostCtl;
 
     /* create script engine instance */
     hr = CoCreateInstance(pEngineGuid, 0, CLSCTX_ALL, &IID_IActiveScript,
@@ -46,7 +47,15 @@ char * AXSH_OpenScriptEngine(AXSH_EngineState *pEngineState, GUID *pEngineGuid,
         return "SetScriptSite() on ActiveScript object failed";
     }
 
-    // TODO initialize AXSH_TclHostControl object
+    /* allocate space for TclHostControl object and init vtables */
+    pTempHostCtl = malloc(sizeof(*pTempHostCtl));
+    if (pTempHostCtl == NULL)
+    {
+        free(pEngineState->pTclScriptSite);
+        return "out of memory";
+    }
+    AXSH_InitHostControl(pTempHostCtl);
+    pEngineState->pTclHostControl = pTempHostCtl;
 
     /* store a pointer to the Tcl interpreter in the engine state
        this is referenced by callback functions of the
@@ -63,7 +72,7 @@ char * AXSH_CloseScriptEngine(AXSH_EngineState *pEngineState)
 
     hr = pEngineState->pActiveScript->lpVtbl-> // TODO check for hr == OLESCRIPT_S_PENDING or similar
         Close(pEngineState->pActiveScript);
-    if (hr != S_OK)
+    if (hr != S_OK) // TODO nonzero values can also mean success...
         return "IActiveScript::Close failed";
 
     // TODO REACTIVATE THIS BETTER ERROR MESSAGE...
@@ -74,8 +83,9 @@ char * AXSH_CloseScriptEngine(AXSH_EngineState *pEngineState)
     //    return TCL_ERROR;
     //}
 
-    /* we don't need to Release() our AXSH_TclActiveScriptSite object because
-       we never AddRef()'d it - the engine will do this */
+    /* we don't need to Release() our AXSH_TclActiveScriptSite or
+       AXSH_TclHostControl objects because we never AddRef()'d it - the engine
+       will do this */
 
     /* release ActiveScript and ActiveScriptParse objects */
     pEngineState->pActiveScript->lpVtbl->
