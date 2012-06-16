@@ -1,10 +1,17 @@
 #include "axsh-include-all.h"
 
 /* This contains:
+ *     GUIDs for object and its vtable
  *     static method implementations for interfaces
  *     static vtables for each interface
  *     helper functions for initialization
  */
+
+const CLSID CLSID_ITclHostControl = {0x45397c60, 0xa814, 0x4c6d, {0xa1, 0x55,
+    0x1f, 0x2d, 0x87, 0x2b, 0x1e, 0x83}};
+
+const IID IID_ITclHostControl = {0xde08c005, 0xcadc, 0x4444, {0x90, 0xdd,
+    0xe0, 0x44, 0x25, 0x1c, 0xb7, 0xe8}};
 
 /* -------------------------------------------------------------------------
    -------------------------- ITclHostControl ------------------------------
@@ -21,6 +28,8 @@ static STDMETHODIMP_(ULONG) Release(AXSH_TclHostControl *this)
     this->referenceCount--;
     if (this->referenceCount == 0)
     {
+        if (this->pTypeInfo != NULL)
+            this->pTypeInfo->lpVtbl->Release(this->pTypeInfo);
         free(this);
         return 0;
     }
@@ -152,4 +161,5 @@ void AXSH_InitHostControl(AXSH_TclHostControl *this)
 
     /* data */
     this->referenceCount = 0;
+    this->pTypeInfo = NULL; /* lazy initialized */
 }

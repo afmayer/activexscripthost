@@ -14,7 +14,6 @@ int AXSH_Tcl_CloseScriptEngine(ClientData clientData, Tcl_Interp *interp,
                                int objc, Tcl_Obj *CONST objv[])
 {
     AXSH_EngineState *pEngineState = (AXSH_EngineState *)clientData;
-    HRESULT hr;
     char *pRetString;
     char buffer[128];
 

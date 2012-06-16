@@ -7,6 +7,9 @@
 extern "C" {
 #endif
 
+extern const CLSID CLSID_ITclHostControl;
+extern const IID IID_ITclHostControl;
+
 #undef  INTERFACE
 #define INTERFACE ITclHostControl
 DECLARE_INTERFACE_ (INTERFACE, IDispatch)
@@ -33,6 +36,7 @@ typedef struct AXSH_TclHostControl_ {
 
     /* private data of object */
     unsigned int      referenceCount;
+    ITypeInfo         *pTypeInfo; /* lazy initialized */
     // TODO is a pointer back to the engine state needed, as in TclActiveScriptSite?
 } AXSH_TclHostControl;
 
