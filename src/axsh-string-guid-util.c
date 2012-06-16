@@ -94,7 +94,6 @@ char * AXSH_StringToGuid(const char *pGuidString, GUID *pGuid)
     return NULL;
 }
 
-// TODO when checking HRESULT for errors use SUCCEEDED() or FAILED() macro!
 // TODO use FormatMessage() Windows API functioni instead?
 // TODO check https://en.wikipedia.org/wiki/HRESULT
 char * AXSH_HRESULT2String(HRESULT hr)

@@ -85,19 +85,19 @@ int AXSH_Tcl_OpenEngine(ClientData clientData, Tcl_Interp *interp, int objc,
     }
 
     /* open engine */
-    pRetString = AXSH_OpenScriptEngine(pEngineState, &engineGuid, interp);
+    pRetString = AXSH_InitEngineState(pEngineState, &engineGuid, interp);
     if (pRetString != NULL)
     {
         _snprintf(buffer, sizeof(buffer), // TODO replace this by HRESULT2String() result
-            "AXSH_OpenScriptEngine() says '%s'", pRetString);
+            "AXSH_InitEngineState() says '%s'", pRetString);
         buffer[sizeof(buffer)-1] = 0;
         goto failAndFreeEngineState;
     }
 
-    // TODO BEGIN OF TEST CODE TO ADD NAMED ITEM
+    /* add named item */
     pEngineState->pActiveScript->lpVtbl-> // TODO use at least a #define for the name of the named item
-        AddNamedItem(pEngineState->pActiveScript, L"tcl", SCRIPTITEM_GLOBALMEMBERS|SCRIPTITEM_ISVISIBLE);
-    // TODO END OF TEST CODE TO ADD NAMED ITEM
+        AddNamedItem(pEngineState->pActiveScript, L"tcl",
+        SCRIPTITEM_GLOBALMEMBERS|SCRIPTITEM_ISVISIBLE);
 
     /* create a Tcl command for our new engine - pass a
        pointer (client data) to the engine state when the command is handled */
@@ -124,7 +124,7 @@ int AXSH_Tcl_OpenEngine(ClientData clientData, Tcl_Interp *interp, int objc,
 failAndCloseEngineAndFreeEngineState:
     hr = pEngineState->pActiveScript->lpVtbl-> // TODO check for hr == OLESCRIPT_S_PENDING or similar
         Close(pEngineState->pActiveScript);
-    if (hr != S_OK)
+    if (FAILED(hr))
     {
         _snprintf(buffer, sizeof(buffer), "IActiveScript::Close (called due "
             "to an error) returned %s", AXSH_HRESULT2String(hr));

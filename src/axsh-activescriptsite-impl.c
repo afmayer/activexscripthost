@@ -17,7 +17,6 @@ static STDMETHODIMP_(ULONG) AddRef(AXSH_TclActiveScriptSite *this)
 
 static STDMETHODIMP_(ULONG) Release(AXSH_TclActiveScriptSite *this)
 {
-    // TODO NOTE also release all resources we're holding pointers to
     this->referenceCount--;
     if (this->referenceCount == 0)
     {

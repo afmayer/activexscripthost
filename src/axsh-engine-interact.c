@@ -1,6 +1,6 @@
 #include "axsh-include-all.h"
 
-char * AXSH_OpenScriptEngine(AXSH_EngineState *pEngineState, GUID *pEngineGuid,
+char * AXSH_InitEngineState(AXSH_EngineState *pEngineState, GUID *pEngineGuid,
                              Tcl_Interp *pTclInterp)
 {
     // TODO split into static subfunctions - each responsible for 1 element in the structure
@@ -13,14 +13,14 @@ char * AXSH_OpenScriptEngine(AXSH_EngineState *pEngineState, GUID *pEngineGuid,
     /* create script engine instance */
     hr = CoCreateInstance(pEngineGuid, 0, CLSCTX_ALL, &IID_IActiveScript,
         (void **)&(pEngineState->pActiveScript)); // TODO store in temp var before assigning to struct...
-    if (hr != S_OK)
+    if (FAILED(hr))
         return "CoCreateInstance() on engine failed";
 
     /* get IActiveScriptParse interface */
     hr = pEngineState->pActiveScript->lpVtbl->QueryInterface(pEngineState->
             pActiveScript, &IID_IActiveScriptParse,
             (void **)&(pEngineState->pActiveScriptParse));
-    if (hr != S_OK)
+    if (FAILED(hr))
         return "QueryInterface() for getting ActiveScriptParse object failed";
 
     /* allocate space for ActiveScriptSite object and init vtables */
@@ -33,7 +33,7 @@ char * AXSH_OpenScriptEngine(AXSH_EngineState *pEngineState, GUID *pEngineGuid,
     /* initialize engine */
     hr = pEngineState->pActiveScriptParse->lpVtbl->
             InitNew(pEngineState->pActiveScriptParse);
-    if (hr != S_OK)
+    if (FAILED(hr))
     {
         free(pEngineState->pTclScriptSite);
         return "InitNew() on ActiveScriptParse object failed";
@@ -42,7 +42,7 @@ char * AXSH_OpenScriptEngine(AXSH_EngineState *pEngineState, GUID *pEngineGuid,
     hr = pEngineState->pActiveScript->lpVtbl->
             SetScriptSite(pEngineState->pActiveScript,
             &pEngineState->pTclScriptSite->site);
-    if (hr != S_OK)
+    if (FAILED(hr))
     {
         free(pEngineState->pTclScriptSite);
         return "SetScriptSite() on ActiveScript object failed";
@@ -74,17 +74,17 @@ char * AXSH_OpenScriptEngine(AXSH_EngineState *pEngineState, GUID *pEngineGuid,
     return NULL;
 }
 
-char * AXSH_CloseScriptEngine(AXSH_EngineState *pEngineState)
+char * AXSH_CleanupEngineState(AXSH_EngineState *pEngineState)
 {
     HRESULT hr;
 
     hr = pEngineState->pActiveScript->lpVtbl-> // TODO check for hr == OLESCRIPT_S_PENDING or similar
         Close(pEngineState->pActiveScript);
-    if (hr != S_OK) // TODO nonzero values can also mean success...
+    if (FAILED(hr))
         return "IActiveScript::Close failed";
 
-    // TODO REACTIVATE THIS BETTER ERROR MESSAGE...
-    //if (hr != S_OK)
+    // TODO reactivate this better error message...
+    //if (FAILED(hr))
     //{
     //    AXSH_SetTclResultToHRESULTErrString(interp, buffer, sizeof(buffer), hr,
     //        "IActiveScript::Close");

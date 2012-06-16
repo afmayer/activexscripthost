@@ -175,18 +175,18 @@ char * AXSH_InitHostControl(AXSH_TclHostControl *this)
     this->pVtableTypeInfo = NULL;
 
     hr = LoadTypeLib(_wpgmptr, &pTempTypeLib); /* get type info from DLL */
-    if (hr != S_OK)
+    if (FAILED(hr))
         return "Could not load type library for ITclHostControl";
 
     hr = pTempTypeLib->lpVtbl->GetTypeInfoOfGuid(pTempTypeLib,
         &CLSID_ITclHostControl, &pTempObjTypeInfo);
-    if (hr != S_OK)
+    if (FAILED(hr))
         return "Could not get ITclHostControl object type info "
             "from type library";
 
     hr = pTempTypeLib->lpVtbl->GetTypeInfoOfGuid(pTempTypeLib,
         &IID_ITclHostControl, &pTempVtableTypeInfo);
-    if (hr != S_OK)
+    if (FAILED(hr))
         return "Could not get ITclHostControl VTable type info "
             "from type library";
 

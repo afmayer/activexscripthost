@@ -17,11 +17,11 @@ int AXSH_Tcl_CloseScriptEngine(ClientData clientData, Tcl_Interp *interp,
     char *pRetString;
     char buffer[128];
 
-    pRetString = AXSH_CloseScriptEngine(pEngineState);
+    pRetString = AXSH_CleanupEngineState(pEngineState);
     if (pRetString != NULL)
     {
-        _snprintf(buffer, sizeof(buffer), "AXSH_CloseScriptEngine() says '%s'",
-            pRetString);
+        _snprintf(buffer, sizeof(buffer),
+            "AXSH_CleanupEngineState() says '%s'", pRetString);
         buffer[sizeof(buffer)-1] = 0;
         Tcl_SetResult(interp, buffer, TCL_VOLATILE);
     }
@@ -54,7 +54,7 @@ int AXSH_Tcl_ParseText(ClientData clientData, Tcl_Interp *interp, int objc,
             ParseScriptText(pEngineState->pActiveScriptParse,
             (wchar_t *)pScriptUTF16,
             0, 0, 0, 0, 0, 0, 0, 0);
-    if (hr != S_OK)
+    if (FAILED(hr))
     {
         AXSH_SetTclResultToHRESULTErrString(interp, buffer, sizeof(buffer), hr,
             "IActiveScriptParse::ParseScriptText");
@@ -93,7 +93,7 @@ int AXSH_Tcl_SetScriptState(ClientData clientData, Tcl_Interp *interp,
     /* set script state */
     hr = pEngineState->pActiveScript->lpVtbl->
         SetScriptState(pEngineState->pActiveScript, scriptState);
-    if (hr != S_OK)
+    if (FAILED(hr))
     {
         AXSH_SetTclResultToHRESULTErrString(interp, buffer, sizeof(buffer), hr,
             "IActiveScript::SetScriptState");

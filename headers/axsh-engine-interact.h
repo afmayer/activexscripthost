@@ -22,9 +22,9 @@ typedef struct AXSH_EngineState_ {
     Tcl_Obj     *pErrorResult;
 } AXSH_EngineState;
 
-char * AXSH_OpenScriptEngine(AXSH_EngineState *pEngineState, GUID *pEngineGuid, // TODO NAME SHOULD BE: InitScriptState()
+char * AXSH_InitEngineState(AXSH_EngineState *pEngineState, GUID *pEngineGuid,
                              Tcl_Interp *pTclInterp);
-char * AXSH_CloseScriptEngine(AXSH_EngineState *pEngineState); // TODO NAME SOULD BE: CleanupScriptState()
+char * AXSH_CleanupEngineState(AXSH_EngineState *pEngineState);
 
 #ifdef __cplusplus
 }
