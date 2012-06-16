@@ -57,8 +57,6 @@ static STDMETHODIMP GetItemInfo(AXSH_TclActiveScriptSite *this,
                                 LPCOLESTR objectName, DWORD dwReturnMask,
                                 IUnknown **objPtr, ITypeInfo **typeInfo)
 {
-    HRESULT hr;
-
     if (dwReturnMask & SCRIPTINFO_IUNKNOWN) *objPtr = 0;
     if (dwReturnMask & SCRIPTINFO_ITYPEINFO) *typeInfo = 0;
 
@@ -68,31 +66,7 @@ static STDMETHODIMP GetItemInfo(AXSH_TclActiveScriptSite *this,
             *objPtr = (IUnknown *)(this->pEngineState->pTclHostControl);
 
         if (dwReturnMask & SCRIPTINFO_ITYPEINFO)
-        {
-            /* lazy initialization of TclHostControl type info */
-            if (this->pEngineState->pTclHostControl->pTypeInfo == NULL)
-            {
-                /* get type info from type library (load this from DLL) */
-                ITypeLib  *pTempTypeLib;
-                ITypeInfo *pTempTypeInfo;
-                hr = LoadTypeLib(_wpgmptr, &pTempTypeLib);
-                if (hr == S_OK)
-                {
-                    hr = pTempTypeLib->lpVtbl->GetTypeInfoOfGuid(pTempTypeLib,
-                        &CLSID_ITclHostControl, &pTempTypeInfo);
-
-                    /* release TypeLib after TypeInfo extraction */
-                    pTempTypeLib->lpVtbl->Release(pTempTypeLib);
-                }
-                if (hr == S_OK)
-                {
-                    /* TypeInfo extraction successful - lazy init complete */
-                    pTempTypeInfo->lpVtbl->AddRef(pTempTypeInfo);
-                    this->pEngineState->pTclHostControl->pTypeInfo = pTempTypeInfo;
-                }
-            }
             *typeInfo = this->pEngineState->pTclHostControl->pTypeInfo;
-        }
 
         return S_OK;
     }

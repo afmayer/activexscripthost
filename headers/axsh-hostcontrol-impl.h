@@ -40,7 +40,7 @@ typedef struct AXSH_TclHostControl_ {
     // TODO is a pointer back to the engine state needed, as in TclActiveScriptSite?
 } AXSH_TclHostControl;
 
-void AXSH_InitHostControl(AXSH_TclHostControl *this);
+char * AXSH_InitHostControl(AXSH_TclHostControl *this);
 
 #ifdef __cplusplus
 }

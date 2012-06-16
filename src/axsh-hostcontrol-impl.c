@@ -153,13 +153,35 @@ static IProvideMultipleClassInfoVtbl g_MultiClassInfoVTable = {
 /* -------------------------------------------------------------------------
    ------------------------- initialization function -----------------------
    ------------------------------------------------------------------------- */
-void AXSH_InitHostControl(AXSH_TclHostControl *this)
+char * AXSH_InitHostControl(AXSH_TclHostControl *this)
 {
+    HRESULT   hr;
+    ITypeLib  *pTempTypeLib;
+    ITypeInfo *pTempTypeInfo;
+
     /* vtables */
     this->hostCtl.lpVtbl = &g_TclHostControlVTable;
     this->multiClassInfo.lpVtbl = &g_MultiClassInfoVTable;
 
-    /* data */
+    /* initialize other data */
     this->referenceCount = 0;
-    this->pTypeInfo = NULL; /* lazy initialized */
+
+    hr = LoadTypeLib(_wpgmptr, &pTempTypeLib); /* get type info from DLL */
+    if (hr != S_OK)
+        return "Could not load type library";
+
+    hr = pTempTypeLib->lpVtbl->GetTypeInfoOfGuid(pTempTypeLib,
+        &CLSID_ITclHostControl, &pTempTypeInfo);
+    if (hr != S_OK)
+        return "Could not get type info from type library";
+
+    /* release TypeLib after TypeInfo extraction */
+    pTempTypeLib->lpVtbl->Release(pTempTypeLib);
+
+    /* TypeInfo extraction successful */
+    pTempTypeInfo->lpVtbl->AddRef(pTempTypeInfo);
+    this->pTypeInfo = pTempTypeInfo;
+
+    /* no error */
+    return NULL;
 }

@@ -6,6 +6,7 @@ char * AXSH_OpenScriptEngine(AXSH_EngineState *pEngineState, GUID *pEngineGuid,
     // TODO split into static subfunctions - each responsible for 1 element in the structure
     //      so memory cleanup is easier
     HRESULT hr;
+    char *pRetString;
     AXSH_TclActiveScriptSite *pTemp;
     AXSH_TclHostControl *pTempHostCtl;
 
@@ -47,14 +48,21 @@ char * AXSH_OpenScriptEngine(AXSH_EngineState *pEngineState, GUID *pEngineGuid,
         return "SetScriptSite() on ActiveScript object failed";
     }
 
-    /* allocate space for TclHostControl object and init vtables */
+    /* allocate space for TclHostControl object and initialize it */
     pTempHostCtl = malloc(sizeof(*pTempHostCtl));
     if (pTempHostCtl == NULL)
     {
         free(pEngineState->pTclScriptSite);
         return "out of memory";
     }
-    AXSH_InitHostControl(pTempHostCtl);
+    pRetString = AXSH_InitHostControl(pTempHostCtl);
+    if (pRetString != NULL)
+    {
+        free(pTempHostCtl);
+        free(pEngineState->pTclScriptSite);
+        return pRetString;
+    }
+
     pEngineState->pTclHostControl = pTempHostCtl;
 
     /* store a pointer to the Tcl interpreter in the engine state
