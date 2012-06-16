@@ -36,7 +36,8 @@ typedef struct AXSH_TclHostControl_ {
 
     /* private data of object */
     unsigned int      referenceCount;
-    ITypeInfo         *pTypeInfo; /* lazy initialized */
+    ITypeInfo         *pObjectTypeInfo;
+    ITypeInfo         *pVtableTypeInfo;
     // TODO is a pointer back to the engine state needed, as in TclActiveScriptSite?
 } AXSH_TclHostControl;
 

@@ -28,8 +28,13 @@ static STDMETHODIMP_(ULONG) Release(AXSH_TclHostControl *this)
     this->referenceCount--;
     if (this->referenceCount == 0)
     {
-        if (this->pTypeInfo != NULL)
-            this->pTypeInfo->lpVtbl->Release(this->pTypeInfo);
+        /* Release() all COM objects we're holding pointers to */
+        if (this->pObjectTypeInfo != NULL)
+            this->pObjectTypeInfo->lpVtbl->Release(this->pObjectTypeInfo);
+        if (this->pVtableTypeInfo != NULL)
+            this->pVtableTypeInfo->lpVtbl->Release(this->pVtableTypeInfo);
+
+        /* free() the object itself */
         free(this);
         return 0;
     }
@@ -157,7 +162,8 @@ char * AXSH_InitHostControl(AXSH_TclHostControl *this)
 {
     HRESULT   hr;
     ITypeLib  *pTempTypeLib;
-    ITypeInfo *pTempTypeInfo;
+    ITypeInfo *pTempObjTypeInfo;
+    ITypeInfo *pTempVtableTypeInfo;
 
     /* vtables */
     this->hostCtl.lpVtbl = &g_TclHostControlVTable;
@@ -168,19 +174,28 @@ char * AXSH_InitHostControl(AXSH_TclHostControl *this)
 
     hr = LoadTypeLib(_wpgmptr, &pTempTypeLib); /* get type info from DLL */
     if (hr != S_OK)
-        return "Could not load type library";
+        return "Could not load type library for ITclHostControl";
 
     hr = pTempTypeLib->lpVtbl->GetTypeInfoOfGuid(pTempTypeLib,
-        &CLSID_ITclHostControl, &pTempTypeInfo);
+        &CLSID_ITclHostControl, &pTempObjTypeInfo);
     if (hr != S_OK)
-        return "Could not get type info from type library";
+        return "Could not get ITclHostControl object type info "
+            "from type library";
+
+    hr = pTempTypeLib->lpVtbl->GetTypeInfoOfGuid(pTempTypeLib,
+        &IID_ITclHostControl, &pTempVtableTypeInfo);
+    if (hr != S_OK)
+        return "Could not get ITclHostControl VTable type info "
+            "from type library";
 
     /* release TypeLib after TypeInfo extraction */
     pTempTypeLib->lpVtbl->Release(pTempTypeLib);
 
     /* TypeInfo extraction successful */
-    pTempTypeInfo->lpVtbl->AddRef(pTempTypeInfo);
-    this->pTypeInfo = pTempTypeInfo;
+    pTempObjTypeInfo->lpVtbl->AddRef(pTempObjTypeInfo);
+    this->pObjectTypeInfo = pTempObjTypeInfo;
+    pTempVtableTypeInfo->lpVtbl->AddRef(pTempVtableTypeInfo);
+    this->pVtableTypeInfo = pTempVtableTypeInfo;
 
     /* no error */
     return NULL;

@@ -66,7 +66,7 @@ static STDMETHODIMP GetItemInfo(AXSH_TclActiveScriptSite *this,
             *objPtr = (IUnknown *)(this->pEngineState->pTclHostControl);
 
         if (dwReturnMask & SCRIPTINFO_ITYPEINFO)
-            *typeInfo = this->pEngineState->pTclHostControl->pTypeInfo;
+            *typeInfo = this->pEngineState->pTclHostControl->pObjectTypeInfo;
 
         return S_OK;
     }
