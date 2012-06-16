@@ -171,6 +171,8 @@ char * AXSH_InitHostControl(AXSH_TclHostControl *this)
 
     /* initialize other data */
     this->referenceCount = 0;
+    this->pObjectTypeInfo = NULL;
+    this->pVtableTypeInfo = NULL;
 
     hr = LoadTypeLib(_wpgmptr, &pTempTypeLib); /* get type info from DLL */
     if (hr != S_OK)
