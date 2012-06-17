@@ -62,18 +62,42 @@ static STDMETHODIMP QueryInterface(AXSH_TclHostControl *this, REFIID riid,
 }
 
 static STDMETHODIMP GetTypeInfoCount(AXSH_TclHostControl *this, UINT *pctinfo)
-{return S_OK;}
+{
+    *pctinfo = 1;
+    return S_OK;
+}
+
 static STDMETHODIMP GetTypeInfo(AXSH_TclHostControl *this, UINT ctinfo,
                                 LCID lcid, ITypeInfo **typeInfo)
-{return S_OK;}
+{
+    *typeInfo = this->pVtableTypeInfo;
+    this->pVtableTypeInfo->lpVtbl->AddRef(this->pVtableTypeInfo);
+    return S_OK;
+}
+
 static STDMETHODIMP GetIDsOfNames(AXSH_TclHostControl *this, REFIID riid,
                                   OLECHAR **rgszNames, UINT cNames, LCID lcid,
                                   DISPID *rgdispid)
-{return S_OK;}
+{
+    HRESULT hr;
+
+    /* delegate to type info */
+    hr = this->pVtableTypeInfo->lpVtbl->GetIDsOfNames(this->pVtableTypeInfo,
+        rgszNames, cNames, rgdispid);
+    return hr;
+}
+
 static STDMETHODIMP Invoke(AXSH_TclHostControl *this, DISPID id, REFIID riid,
                            LCID lcid, WORD flag, DISPPARAMS *params,
                            VARIANT *ret, EXCEPINFO *pei, UINT *pu)
-{return S_OK;}
+{
+    HRESULT hr;
+
+    /* delegate to type info */
+    hr = this->pVtableTypeInfo->lpVtbl->Invoke(this->pVtableTypeInfo,
+        this, id, flag, params, ret, pei, pu);
+    return hr;
+}
 static STDMETHODIMP GetStringVar(AXSH_TclHostControl *this, BSTR variable,
                                  BSTR *value)
 {return S_OK;}
