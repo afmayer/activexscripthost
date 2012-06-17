@@ -111,43 +111,100 @@ static STDMETHODIMP QueryInterface_CInfo(IProvideMultipleClassInfo *this,
                                          REFIID riid, void **ppv)
 {
     /* delegate to base object */
-    this = (IProvideMultipleClassInfo *)(((unsigned char *)this -
+    AXSH_TclHostControl *pBaseObj =
+        (AXSH_TclHostControl *)(((unsigned char *)this -
         offsetof(AXSH_TclHostControl, multiClassInfo)));
-    return QueryInterface((AXSH_TclHostControl *)this, riid, ppv);
+    return QueryInterface(pBaseObj, riid, ppv);
 }
 
 static STDMETHODIMP_(ULONG) AddRef_CInfo(IProvideMultipleClassInfo *this)
 {
     /* delegate to base object */
-    this = (IProvideMultipleClassInfo *)(((unsigned char *)this -
+    AXSH_TclHostControl *pBaseObj =
+        (AXSH_TclHostControl *)(((unsigned char *)this -
         offsetof(AXSH_TclHostControl, multiClassInfo)));
-    return AddRef((AXSH_TclHostControl *)this);
+    return AddRef(pBaseObj);
 }
 
 static STDMETHODIMP_(ULONG) Release_CInfo(IProvideMultipleClassInfo *this)
 {
     /* delegate to base object */
-    this = (IProvideMultipleClassInfo *)(((unsigned char *)this -
+    AXSH_TclHostControl *pBaseObj =
+        (AXSH_TclHostControl *)(((unsigned char *)this -
         offsetof(AXSH_TclHostControl, multiClassInfo)));
-    return Release((AXSH_TclHostControl *)this);
+    return Release(pBaseObj);
 }
 
 static STDMETHODIMP GetClassInfo_CInfo(IProvideMultipleClassInfo *this,
                                        ITypeInfo **classITypeInfo)
-{return S_OK;}
+{
+    AXSH_TclHostControl *pBaseObj =
+        (AXSH_TclHostControl *)(((unsigned char *)this -
+        offsetof(AXSH_TclHostControl, multiClassInfo)));
+    *classITypeInfo = pBaseObj->pObjectTypeInfo;
+    pBaseObj->pObjectTypeInfo->lpVtbl->AddRef(pBaseObj->pObjectTypeInfo);
+    return S_OK;
+}
+
 static STDMETHODIMP GetGUID_CInfo(IProvideMultipleClassInfo *this,
                                   DWORD guidType, GUID *guid)
-{return S_OK;}
+{
+    if (guidType == GUIDKIND_DEFAULT_SOURCE_DISP_IID)
+        return E_NOTIMPL;
+
+    return E_INVALIDARG;
+}
 static STDMETHODIMP GetMultiTypeInfoCount_CInfo(
                                 IProvideMultipleClassInfo *this, ULONG *count)
-{return S_OK;}
+{
+    *count = 1;
+    return S_OK;
+}
 static STDMETHODIMP GetInfoOfIndex_CInfo(IProvideMultipleClassInfo *this,
                                          ULONG objNum, DWORD flags,
                                          ITypeInfo **classITypeInfo,
                                          DWORD *retFlags, ULONG *reservedIds,
                                          GUID *defVTableGuid,
                                          GUID *defSrcVTableGuid)
-{return S_OK;}
+{
+    AXSH_TclHostControl *pBaseObj =
+        (AXSH_TclHostControl *)(((unsigned char *)this -
+        offsetof(AXSH_TclHostControl, multiClassInfo)));
+
+    *retFlags = 0; /* reset flags that are returned */
+
+    /* objNum is ignored - only 1 implemented in this IDispatch interface */
+
+    if (flags & MULTICLASSINFO_GETNUMRESERVEDDISPIDS)
+    {
+        /* caller asks for number of DISPIDs */
+        *reservedIds = 1; // TODO number of DISPIDs in ITclHostControl likely to change, don't forget it here...
+        *retFlags |= MULTICLASSINFO_GETNUMRESERVEDDISPIDS;
+    }
+
+    if (flags & MULTICLASSINFO_GETIIDPRIMARY)
+    {
+        /* caller asks for IID of the default interface (for this IDispatch) */
+        memcpy(defVTableGuid, &IID_ITclHostControl,
+            sizeof(IID_ITclHostControl));
+        *retFlags |= MULTICLASSINFO_GETIIDPRIMARY;
+    }
+
+    if (flags & MULTICLASSINFO_GETIIDSOURCE)
+    {
+        /* NOT IMPLEMENTED */
+    }
+
+    if (flags & MULTICLASSINFO_GETTYPEINFO)
+    {
+        /* caller asks for object type info */
+        *classITypeInfo = pBaseObj->pObjectTypeInfo;
+        pBaseObj->pObjectTypeInfo->lpVtbl->AddRef(pBaseObj->pObjectTypeInfo);
+        *retFlags |= MULTICLASSINFO_GETTYPEINFO;
+    }
+
+    return S_OK;
+}
 
 /* -------------------------------------------------------------------------
    ----------------------------- vtables -----------------------------------
