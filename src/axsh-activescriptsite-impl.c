@@ -229,22 +229,28 @@ static STDMETHODIMP siteWnd_QueryInterface(IActiveScriptSiteWindow *this,
                                            REFIID riid, void **ppv)
 {
     /* delegate to base object */
-    this = (IActiveScriptSiteWindow *)(((unsigned char *)this - offsetof(AXSH_TclActiveScriptSite, siteWnd)));
-    return QueryInterface((AXSH_TclActiveScriptSite *)this, riid, ppv);
+    AXSH_TclActiveScriptSite *pBaseObj =
+        (AXSH_TclActiveScriptSite *)(((unsigned char *)this -
+        offsetof(AXSH_TclActiveScriptSite, siteWnd)));
+    return QueryInterface(pBaseObj, riid, ppv);
 }
 
 static STDMETHODIMP_(ULONG) siteWnd_AddRef(IActiveScriptSiteWindow *this)
 {
     /* delegate to base object */
-    this = (IActiveScriptSiteWindow *)(((unsigned char *)this - offsetof(AXSH_TclActiveScriptSite, siteWnd)));
-    return AddRef((AXSH_TclActiveScriptSite *)this);
+    AXSH_TclActiveScriptSite *pBaseObj =
+        (AXSH_TclActiveScriptSite *)(((unsigned char *)this -
+        offsetof(AXSH_TclActiveScriptSite, siteWnd)));
+    return AddRef(pBaseObj);
 }
 
 static STDMETHODIMP_(ULONG) siteWnd_Release(IActiveScriptSiteWindow *this)
 {
     /* delegate to base object */
-    this = (IActiveScriptSiteWindow *)(((unsigned char *)this - offsetof(AXSH_TclActiveScriptSite, siteWnd)));
-    return Release((AXSH_TclActiveScriptSite *)this);
+    AXSH_TclActiveScriptSite *pBaseObj =
+        (AXSH_TclActiveScriptSite *)(((unsigned char *)this -
+        offsetof(AXSH_TclActiveScriptSite, siteWnd)));
+    return Release(pBaseObj);
 }
 
 // Called by the script engine when it wants to know what window it should
