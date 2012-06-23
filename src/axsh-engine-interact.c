@@ -63,7 +63,11 @@ char * AXSH_InitEngineState(AXSH_EngineState *pEngineState, GUID *pEngineGuid,
         return pRetString;
     }
 
+    /* store pointer to TclHostControl object in engine state and AddRef() it
+       manually - otherwise the language engine could inadequately delete it */
     pEngineState->pTclHostControl = pTempHostCtl;
+    pTempHostCtl->hostCtl.lpVtbl->
+        AddRef((ITclHostControl *)pTempHostCtl);
 
     /* store a pointer to the Tcl interpreter in the engine state
        this is referenced by callback functions of the
@@ -100,6 +104,9 @@ char * AXSH_CleanupEngineState(AXSH_EngineState *pEngineState)
         Release(pEngineState->pActiveScript);
     pEngineState->pActiveScriptParse->lpVtbl->
         Release(pEngineState->pActiveScriptParse);
+
+    /* we don't need to Release() our TclHostControl object for some reason
+       although it is manually AddRef()'d at engine state initialization */
 
     /* no error */
     return NULL;
