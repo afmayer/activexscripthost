@@ -55,7 +55,7 @@ char * AXSH_InitEngineState(AXSH_EngineState *pEngineState, GUID *pEngineGuid,
         free(pEngineState->pTclScriptSite);
         return "out of memory";
     }
-    pRetString = AXSH_InitHostControl(pTempHostCtl);
+    pRetString = AXSH_InitHostControl(pTempHostCtl, pEngineState);
     if (pRetString != NULL)
     {
         free(pTempHostCtl);

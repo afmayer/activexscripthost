@@ -38,10 +38,11 @@ typedef struct AXSH_TclHostControl_ {
     unsigned int      referenceCount;
     ITypeInfo         *pObjectTypeInfo;
     ITypeInfo         *pVtableTypeInfo;
-    // TODO is a pointer back to the engine state needed, as in TclActiveScriptSite?
+    AXSH_EngineState  *pEngineState; /* pointer back to the engine state */
 } AXSH_TclHostControl;
 
-char * AXSH_InitHostControl(AXSH_TclHostControl *this);
+char * AXSH_InitHostControl(AXSH_TclHostControl *this,
+                            AXSH_EngineState *pEngineState);
 
 #ifdef __cplusplus
 }

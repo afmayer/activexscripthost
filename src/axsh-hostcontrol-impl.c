@@ -239,7 +239,8 @@ static IProvideMultipleClassInfoVtbl g_MultiClassInfoVTable = {
 /* -------------------------------------------------------------------------
    ------------------------- initialization function -----------------------
    ------------------------------------------------------------------------- */
-char * AXSH_InitHostControl(AXSH_TclHostControl *this)
+char * AXSH_InitHostControl(AXSH_TclHostControl *this,
+                            AXSH_EngineState *pEngineState)
 {
     HRESULT   hr;
     ITypeLib  *pTempTypeLib;
@@ -252,6 +253,7 @@ char * AXSH_InitHostControl(AXSH_TclHostControl *this)
 
     /* initialize other data */
     this->referenceCount = 0;
+    this->pEngineState = pEngineState;
     this->pObjectTypeInfo = NULL;
     this->pVtableTypeInfo = NULL;
 
