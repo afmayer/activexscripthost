@@ -100,7 +100,25 @@ static STDMETHODIMP Invoke(AXSH_TclHostControl *this, DISPID id, REFIID riid,
 }
 static STDMETHODIMP GetStringVar(AXSH_TclHostControl *this, BSTR variable,
                                  BSTR *value)
-{return S_OK;}
+{
+    Tcl_Obj     *pVariableNameObj;
+    Tcl_Obj     *pVariableObj;
+    Tcl_UniChar *pStringValueUTF16;
+
+    pVariableNameObj = Tcl_NewUnicodeObj(variable, -1);
+    Tcl_IncrRefCount(pVariableNameObj); /* so it can be decreased afterwards */
+    pVariableObj = Tcl_ObjGetVar2(this->pEngineState->pTclInterp,
+        pVariableNameObj, NULL, TCL_LEAVE_ERR_MSG);
+    Tcl_DecrRefCount(pVariableNameObj); /* now it is free()'d */
+    if (pVariableObj == NULL)
+    {
+        /* an error occurred while retrieving the variable's value */
+        return E_FAIL;
+    }
+    pStringValueUTF16 = Tcl_GetUnicodeFromObj(pVariableObj, NULL);
+    *value = SysAllocString(pStringValueUTF16);
+    return S_OK;
+}
 
 /* -------------------------------------------------------------------------
    ---------------------- IProvideMultipleClassInfo ------------------------
