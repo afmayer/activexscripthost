@@ -13,6 +13,8 @@ library TclActiveXScriptHost
     {
         [id(1)] HRESULT GetStringVar([in] BSTR variable,
             [out,retval] BSTR *value);
+        [id(2)] HRESULT GetIntVar([in] BSTR variable,
+            [out,retval] UINT *value);
     }
 
     /* ITclHostControl object */

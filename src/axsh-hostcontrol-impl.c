@@ -114,11 +114,33 @@ static STDMETHODIMP GetStringVar(AXSH_TclHostControl *this, BSTR variable,
     if (pVariableObj == NULL)
     {
         /* an error occurred while retrieving the variable's value */
+        // TODO: somehow pass the error string (stored in interpreter's result) to the script engine...
         return E_FAIL;
     }
     pStringValueUTF16 = Tcl_GetUnicodeFromObj(pVariableObj,
         &stringValueUTF16Length);
     *value = SysAllocStringLen(pStringValueUTF16, stringValueUTF16Length);
+    return S_OK;
+}
+
+static STDMETHODIMP GetIntVar(AXSH_TclHostControl *this, BSTR variable,
+                              INT *value)
+{
+    Tcl_Obj *pVariableNameObj;
+    Tcl_Obj *pVariableObj;
+
+    pVariableNameObj = Tcl_NewUnicodeObj(variable, -1);
+    Tcl_IncrRefCount(pVariableNameObj); /* so it can be decreased afterwards */
+    pVariableObj = Tcl_ObjGetVar2(this->pEngineState->pTclInterp,
+        pVariableNameObj, NULL, TCL_LEAVE_ERR_MSG);
+    Tcl_DecrRefCount(pVariableNameObj); /* now it is free()'d */
+    if (pVariableObj == NULL)
+    {
+        /* an error occurred while retrieving the variable's value */
+        // TODO: somehow pass the error string (stored in interpreter's result) to the script engine...
+        return E_FAIL;
+    }
+    Tcl_GetIntFromObj(this->pEngineState->pTclInterp, pVariableObj, value);
     return S_OK;
 }
 
@@ -241,7 +263,8 @@ static ITclHostControlVtbl g_TclHostControlVTable = {
     GetTypeInfo,
     GetIDsOfNames,
     Invoke,
-    GetStringVar
+    GetStringVar,
+    GetIntVar
 };
 #pragma warning( pop )
 

@@ -27,6 +27,7 @@ DECLARE_INTERFACE_ (INTERFACE, IDispatch)
         DISPPARAMS *, VARIANT *, EXCEPINFO *, UINT *) PURE;
     /* ITclHostControl */
     STDMETHOD  (GetStringVar)   (THIS_ BSTR, BSTR *) PURE;
+    STDMETHOD  (GetIntVar)      (THIS_ BSTR, INT *) PURE;
 };
 
 typedef struct AXSH_TclHostControl_ {
