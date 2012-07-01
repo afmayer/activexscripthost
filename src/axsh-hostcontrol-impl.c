@@ -104,6 +104,7 @@ static STDMETHODIMP GetStringVar(AXSH_TclHostControl *this, BSTR variable,
     Tcl_Obj     *pVariableNameObj;
     Tcl_Obj     *pVariableObj;
     Tcl_UniChar *pStringValueUTF16;
+    int         stringValueUTF16Length;
 
     pVariableNameObj = Tcl_NewUnicodeObj(variable, -1);
     Tcl_IncrRefCount(pVariableNameObj); /* so it can be decreased afterwards */
@@ -115,8 +116,9 @@ static STDMETHODIMP GetStringVar(AXSH_TclHostControl *this, BSTR variable,
         /* an error occurred while retrieving the variable's value */
         return E_FAIL;
     }
-    pStringValueUTF16 = Tcl_GetUnicodeFromObj(pVariableObj, NULL);
-    *value = SysAllocString(pStringValueUTF16);
+    pStringValueUTF16 = Tcl_GetUnicodeFromObj(pVariableObj,
+        &stringValueUTF16Length);
+    *value = SysAllocStringLen(pStringValueUTF16, stringValueUTF16Length);
     return S_OK;
 }
 
