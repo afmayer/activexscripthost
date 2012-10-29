@@ -1,5 +1,8 @@
 #ifndef AXSH_MISC_DEFINES_H_
 #define AXSH_MISC_DEFINES_H_
+/* ActiveX Script Host
+ * (C) 2012 Alexander F. Mayer
+ */
 
 /* this is a workaround for necessary definitions that cannot be found */
 

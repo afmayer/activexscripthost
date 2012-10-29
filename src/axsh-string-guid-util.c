@@ -1,3 +1,6 @@
+/* ActiveX Script Host
+ * (C) 2012 Alexander F. Mayer
+ */
 #include "axsh-include-all.h"
 
 #define CASE_X_RETURN_X(str) case str: return #str

@@ -1,5 +1,8 @@
 #ifndef AXSH_ENGINE_INTERACT_H_
 #define AXSH_ENGINE_INTERACT_H_
+/* ActiveX Script Host
+ * (C) 2012 Alexander F. Mayer
+ */
 
 // TODO this module should contain all functions related to the AXSH_EngineState structure
 //      init = init all struct elements

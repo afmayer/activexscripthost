@@ -1,3 +1,6 @@
+/* ActiveX Script Host
+ * (C) 2012 Alexander F. Mayer
+ */
 #include "axsh-include-all.h"
 
 int Activexscripthost_Init(Tcl_Interp *interp)

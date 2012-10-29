@@ -1,3 +1,6 @@
+/* ActiveX Script Host
+ * (C) 2012 Alexander F. Mayer
+ */
 [uuid(C6EFF154-560F-4fb1-A376-F59B933AA8A9),
  version(1.0),
  helpstring("Tcl ActiveXScriptHost")]

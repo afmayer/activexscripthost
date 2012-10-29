@@ -1,3 +1,6 @@
+/* ActiveX Script Host
+ * (C) 2012 Alexander F. Mayer
+ */
 #include "axsh-include-all.h"
 
 char * AXSH_InitEngineState(AXSH_EngineState *pEngineState, GUID *pEngineGuid,

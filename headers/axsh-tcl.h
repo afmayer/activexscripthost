@@ -1,5 +1,8 @@
 #ifndef AXSH_TCL_H_
 #define AXSH_TCL_H_
+/* ActiveX Script Host
+ * (C) 2012 Alexander F. Mayer
+ */
 
 #include "axsh-include-all.h"
 
