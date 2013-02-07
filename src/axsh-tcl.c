@@ -3,13 +3,30 @@
  */
 #include "axsh-include-all.h"
 
+/* global variable holding a pointer to the type library - the
+ * type library is never released */
+ITypeLib *g_pTypeLibrary;
+
 int Activexscripthost_Init(Tcl_Interp *interp)
 {
     int ret;
+    HRESULT hr;
 
     /* initialize Tcl Stubs */
     if (Tcl_InitStubs(interp, "8.4", 0) == NULL)
         return TCL_ERROR;
+
+    /* the required type library is loaded in this function call - the working
+     * directory is temporarily set to the directory conatining the DLL
+     * during "load", so the filename without a path is enough for
+     * LoadTypeLib() --> it's otherwise hard to discover the DLL path */
+    hr = LoadTypeLib(L"activexscripthost.dll", &g_pTypeLibrary);
+    if (FAILED(hr))
+    {
+        Tcl_SetResult(interp, "cannot load type library - loaded DLL must be "
+            "in current working directory", TCL_STATIC);
+        return TCL_ERROR;
+    }
 
     Tcl_CreateObjCommand(interp, AXSH_NAMESPACE "::openengine",
         AXSH_Tcl_OpenEngine, NULL, NULL);

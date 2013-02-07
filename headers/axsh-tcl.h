@@ -12,6 +12,8 @@
 #define QUOTESTR_(x) #x
 #define QUOTESTR(x) QUOTESTR_(x)
 
+extern ITypeLib *g_pTypeLibrary;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
