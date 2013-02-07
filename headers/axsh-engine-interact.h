@@ -14,14 +14,25 @@ extern "C" {
 #endif
 
 typedef struct AXSH_EngineState_ {
+    /* pointer to our object implementing IActiveScriptSite */
     struct AXSH_TclActiveScriptSite_ *pTclScriptSite;
+
+    /* pointers to interfaces of the created script engine */
     IActiveScript         *pActiveScript;
     IActiveScriptParse    *pActiveScriptParse;
 
+    /* pointer to our object implementing ITclHostControl */
     struct AXSH_TclHostControl_ *pTclHostControl;
 
+    /* pointer to the Tcl interpreter */
     Tcl_Interp  *pTclInterp;
-    Tcl_Command  pTclCommandToken; /* this is actually a pointer */
+
+    /* pointer to the created Tcl command token */
+    Tcl_Command  pTclCommandToken;
+
+    /* pointer to a Tcl object that is used to transport an error message
+     * from AXSH_TclActiveScriptSite::OnScriptError() to the Tcl command
+     * function that calls the engine's SetScriptState() method */
     Tcl_Obj     *pErrorResult;
 } AXSH_EngineState;
 
