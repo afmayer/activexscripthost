@@ -304,18 +304,18 @@ char * AXSH_InitHostControl(AXSH_TclHostControl *this,
     this->pVtableTypeInfo = NULL;
 
     if (g_pTypeLibrary == NULL)
-        return "Type library not loaded";
+        return "type library not loaded";
 
     hr = g_pTypeLibrary->lpVtbl->GetTypeInfoOfGuid(g_pTypeLibrary,
         &CLSID_ITclHostControl, &pTempObjTypeInfo);
     if (FAILED(hr))
-        return "Could not get ITclHostControl object type info "
+        return "could not get ITclHostControl object type info "
             "from type library";
 
     hr = g_pTypeLibrary->lpVtbl->GetTypeInfoOfGuid(g_pTypeLibrary,
         &IID_ITclHostControl, &pTempVtableTypeInfo);
     if (FAILED(hr))
-        return "Could not get ITclHostControl VTable type info "
+        return "could not get ITclHostControl VTable type info "
             "from type library";
 
     /* TypeInfo extraction successful */

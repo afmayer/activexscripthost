@@ -128,7 +128,7 @@ int AXSH_Tcl_OpenEngine(ClientData clientData, Tcl_Interp *interp, int objc,
         AXSH_Tcl_EngineCommandProc, pEngineState, NULL);
     if (pTempCmdToken == NULL)
     {
-        _snprintf(buffer, sizeof(buffer), "Error creating new Tcl command"); // TODO first char of errors lower case??
+        _snprintf(buffer, sizeof(buffer), "error creating new Tcl command");
         buffer[sizeof(buffer)-1] = 0;
         goto failAndCloseEngineAndFreeEngineState;
     }
