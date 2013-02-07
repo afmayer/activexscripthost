@@ -289,7 +289,6 @@ char * AXSH_InitHostControl(AXSH_TclHostControl *this,
                             AXSH_EngineState *pEngineState)
 {
     HRESULT   hr;
-    ITypeLib  *pTempTypeLib;
     ITypeInfo *pTempObjTypeInfo;
     ITypeInfo *pTempVtableTypeInfo;
 

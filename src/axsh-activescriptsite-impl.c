@@ -75,7 +75,7 @@ static STDMETHODIMP GetItemInfo(AXSH_TclActiveScriptSite *this,
     }
 
     /* unknown object name */
-    return E_FAIL;
+    return TYPE_E_ELEMENTNOTFOUND;
 }
 
 // Called by the script engine when there is an error running/parsing a script.
