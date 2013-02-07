@@ -117,7 +117,7 @@ int AXSH_Tcl_OpenEngine(ClientData clientData, Tcl_Interp *interp, int objc,
     /* add named item */
     pEngineState->pActiveScript->lpVtbl-> // TODO use at least a #define for the name of the named item
         AddNamedItem(pEngineState->pActiveScript, L"tcl",
-        SCRIPTITEM_GLOBALMEMBERS|SCRIPTITEM_ISVISIBLE);
+        SCRIPTITEM_GLOBALMEMBERS | SCRIPTITEM_ISVISIBLE);
 
     /* create a Tcl command for our new engine - pass a
        pointer (client data) to the engine state when the command is handled */
