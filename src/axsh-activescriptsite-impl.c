@@ -87,9 +87,9 @@ static STDMETHODIMP GetItemInfo(AXSH_TclActiveScriptSite *this,
 static STDMETHODIMP OnScriptError(AXSH_TclActiveScriptSite *this,
                                   IActiveScriptError *scriptError)
 {
-    ULONG		lineNumber;
-    BSTR		desc;
-    EXCEPINFO	ei;
+    ULONG       lineNumber;
+    BSTR        desc;
+    EXCEPINFO   ei;
 
     Tcl_Interp *pTclInterp = this->pEngineState->pTclInterp;
     Tcl_Obj **ppErrorResult = &this->pEngineState->pErrorResult;
