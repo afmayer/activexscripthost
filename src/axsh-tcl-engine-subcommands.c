@@ -115,6 +115,7 @@ int AXSH_Tcl_ParseText(ClientData clientData, Tcl_Interp *interp, int objc,
     HRESULT hr;
     unsigned int parseScriptTextFlags = 0;
     VARIANT parseResultVariant;
+    VARIANT *pResultVariantPtr = NULL;
     int i;
     Tcl_Obj *pScript = NULL;
     char *optionTable[] = {"-visible", "-expression", "-persistent", NULL};
@@ -143,11 +144,20 @@ int AXSH_Tcl_ParseText(ClientData clientData, Tcl_Interp *interp, int objc,
         switch (optionAsInt)
         {
         case 0: /* -visible */
-            parseScriptTextFlags |= SCRIPTTEXT_ISVISIBLE; break;
+            parseScriptTextFlags |= SCRIPTTEXT_ISVISIBLE;
+            break;
+
         case 1: /* -expression */
-            parseScriptTextFlags |= SCRIPTTEXT_ISEXPRESSION; break;
+            parseScriptTextFlags |= SCRIPTTEXT_ISEXPRESSION;
+
+            /* at least for the VBScript engine the result pointer must be
+             * NULL when SCRIPTTEXT_ISEXPRESSION is not set */
+            pResultVariantPtr = &parseResultVariant;
+            break;
+
         case 2: /* -persistent */
-            parseScriptTextFlags |= SCRIPTTEXT_ISPERSISTENT; break;
+            parseScriptTextFlags |= SCRIPTTEXT_ISPERSISTENT;
+            break;
         }
     }
 
@@ -170,7 +180,7 @@ int AXSH_Tcl_ParseText(ClientData clientData, Tcl_Interp *interp, int objc,
             0, /* source context cookie */
             0, /* start line number */
             parseScriptTextFlags,
-            &parseResultVariant, /* result is stored here */
+            pResultVariantPtr, /* result is stored here */
             NULL);
     if (FAILED(hr))
     {
@@ -182,9 +192,9 @@ int AXSH_Tcl_ParseText(ClientData clientData, Tcl_Interp *interp, int objc,
 
     /* when the SCRIPTTEXT_ISEXPRESSION flag is set, ParseScriptText()
      * stores the result in a VARIANT (pointed to by one of the arguments),
-     * but here the Tcl result is always set to the returned VARIANT (also when
-     * SCRIPTTEXT_ISEXPRESSION is not set), which is then normally empty */
-    AXSH_SetTclResultToVARIANT(interp, &parseResultVariant);
+     * try to convert it to a Tcl result */
+    if (pResultVariantPtr != NULL)
+        AXSH_SetTclResultToVARIANT(interp, pResultVariantPtr);
 
     /* clear the VARIANT holding the result - this automatically releases
      * all memory that is owned by the VARIANT (BSTRs, arrays, ...) */
