@@ -13,6 +13,75 @@ static void AXSH_SetTclResultToHRESULTErrString(Tcl_Interp *interp,
     Tcl_SetResult(interp, pBuffer, TCL_VOLATILE);
 }
 
+static void AXSH_SetTclResultToVARIANT(Tcl_Interp *interp, VARIANT *pVariant)
+{
+    Tcl_Obj *pObject = NULL;
+
+    if (pVariant->vt & VT_ARRAY)
+        return; // TODO handle VT_ARRAY in AXSH_SetTclResultToVARIANT()
+
+    if (pVariant->vt & VT_BYREF)
+        return; // TODO handle VT_BYREF in AXSH_SetTclResultToVARIANT()
+
+    /* try to convert the VARIANT to a reasonable Tcl object */
+    switch (pVariant->vt & VT_TYPEMASK)
+    {
+    case VT_EMPTY:     /* nothing */
+        break;
+
+    case VT_NULL:      /* SQL style Null */
+        break; // TODO handle VT_NULL in AXSH_SetTclResultToVARIANT()
+
+    case VT_I2:        /* 2 byte signed int */
+        pObject = Tcl_NewIntObj(V_I2(pVariant)); break;
+    case VT_I4:        /* 4 byte signed int */
+        pObject = Tcl_NewIntObj(V_I4(pVariant)); break;
+    case VT_R4:        /* 4 byte real */
+        pObject = Tcl_NewDoubleObj(V_R4(pVariant)); break;
+    case VT_R8:        /* 8 byte real */
+        pObject = Tcl_NewDoubleObj(V_R8(pVariant)); break;
+
+    case VT_CY:        /* currency */
+        break; // TODO handle CURRENCY type in AXSH_SetTclResultToVARIANT()
+    case VT_DATE:      /* date */
+        break; // TODO handle VT_DATE --> http://msdn.microsoft.com/en-us/library/vstudio/82ab7w69(v=vs.90).aspx
+
+    case VT_BSTR:      /* OLE Automation string */
+        pObject = Tcl_NewUnicodeObj(V_BSTR(pVariant),
+            SysStringLen(V_BSTR(pVariant)));
+        break;
+
+    case VT_DISPATCH:  /* (IDispatch *) */
+    case VT_ERROR:     /* SCODE */
+        break; // TODO handle VT_DISPATCH and VT_ERROR in AXSH_SetTclResultToVARIANT()
+
+    case VT_BOOL:      /* True=-1, False=0 */
+        pObject = Tcl_NewBooleanObj(V_BOOL(pVariant) == 0 ? 0 : 1); break;
+
+    case VT_VARIANT:   /* (VARIANT *) */
+    case VT_UNKNOWN:   /* (IUnknown *) */
+    case VT_DECIMAL:   /* 16 byte fixed point */
+    case VT_RECORD:    /* user defined type */
+        break; // TODO handle VT_VARIANT, VT_UNKNOWN, VT_DECIMAL and VT_RECORD in AXSH_SetTclResultToVARIANT()
+
+    case VT_I1:        /* signed char */
+        pObject = Tcl_NewIntObj(V_I1(pVariant)); break;
+    case VT_UI1:       /* unsigned char */
+        pObject = Tcl_NewIntObj(V_UI1(pVariant)); break;
+    case VT_UI2:       /* unsigned short */
+        pObject = Tcl_NewIntObj(V_UI2(pVariant)); break;
+    case VT_UI4:       /* unsigned long */
+        pObject = Tcl_NewLongObj(V_UI4(pVariant)); break;
+    case VT_INT:       /* signed machine int */
+        pObject = Tcl_NewIntObj(V_INT(pVariant)); break;
+    case VT_UINT:      /* unsigned machine int */
+        pObject = Tcl_NewLongObj(V_UINT(pVariant)); break;
+    }
+
+    if (pObject != NULL)
+        Tcl_SetObjResult(interp, pObject);
+}
+
 int AXSH_Tcl_CloseScriptEngine(ClientData clientData, Tcl_Interp *interp,
                                int objc, Tcl_Obj *CONST objv[])
 {
@@ -77,6 +146,9 @@ int AXSH_Tcl_ParseText(ClientData clientData, Tcl_Interp *interp, int objc,
     /* convert string to unicode format */
     pScriptUTF16 = Tcl_GetUnicodeFromObj(pScript, &scriptUTF16Length);
 
+    /* initialize the VARIANT to hold the result */
+    VariantInit(&parseResultVariant);
+
     /* call engine's ParseScriptText() method */
     hr = pEngineState->pActiveScriptParse->lpVtbl->
             ParseScriptText(pEngineState->pActiveScriptParse,
@@ -97,8 +169,14 @@ int AXSH_Tcl_ParseText(ClientData clientData, Tcl_Interp *interp, int objc,
     }
 
     /* when the SCRIPTTEXT_ISEXPRESSION flag is set, ParseScriptText()
-     * stores the result in a VARIANT (pointed to by one of the arguments) */
-    // TODO read result VARIANT and store into Tcl result
+     * stores the result in a VARIANT (pointed to by one of the arguments),
+     * but here the Tcl result is always set to the returned VARIANT (also when
+     * SCRIPTTEXT_ISEXPRESSION is not set), which is then normally empty */
+    AXSH_SetTclResultToVARIANT(interp, &parseResultVariant);
+
+    /* clear the VARIANT holding the result - this automatically releases
+     * all memory that is owned by the VARIANT (BSTRs, arrays, ...) */
+    VariantClear(&parseResultVariant);
 
     /* no error */
     return TCL_OK;
