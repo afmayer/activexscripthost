@@ -117,6 +117,7 @@ int AXSH_Tcl_ParseText(ClientData clientData, Tcl_Interp *interp, int objc,
     VARIANT parseResultVariant;
     int i;
     Tcl_Obj *pScript = NULL;
+    char *optionTable[] = {"-visible", "-expression", "-persistent", NULL};
 
     if (objc < 3)
     {
@@ -132,12 +133,22 @@ int AXSH_Tcl_ParseText(ClientData clientData, Tcl_Interp *interp, int objc,
      *     -persistent     ->    SCRIPTTEXT_ISPERSISTENT */
     for (i=2; i < objc - 1; i++)
     {
-        if (!strcmp(Tcl_GetStringFromObj(objv[i], NULL), "-visible"))
-            parseScriptTextFlags |= SCRIPTTEXT_ISVISIBLE;
-        else if (!strcmp(Tcl_GetStringFromObj(objv[i], NULL), "-expression"))
-            parseScriptTextFlags |= SCRIPTTEXT_ISEXPRESSION;
-        else if (!strcmp(Tcl_GetStringFromObj(objv[i], NULL), "-persistent"))
-            parseScriptTextFlags |= SCRIPTTEXT_ISPERSISTENT;
+        int ret;
+        int optionAsInt;
+
+        ret = Tcl_GetIndexFromObj(interp, objv[i], optionTable, "option", 0,
+            &optionAsInt);
+        if (ret != TCL_OK)
+            return TCL_ERROR;
+        switch (optionAsInt)
+        {
+        case 0: /* -visible */
+            parseScriptTextFlags |= SCRIPTTEXT_ISVISIBLE; break;
+        case 1: /* -expression */
+            parseScriptTextFlags |= SCRIPTTEXT_ISEXPRESSION; break;
+        case 2: /* -persistent */
+            parseScriptTextFlags |= SCRIPTTEXT_ISPERSISTENT; break;
+        }
     }
 
     /* the last argument is the script to be parsed */
@@ -165,6 +176,7 @@ int AXSH_Tcl_ParseText(ClientData clientData, Tcl_Interp *interp, int objc,
     {
         AXSH_SetTclResultToHRESULTErrString(interp, buffer, sizeof(buffer), hr,
             "IActiveScriptParse::ParseScriptText");
+        VariantClear(&parseResultVariant);
         return TCL_ERROR;
     }
 
