@@ -97,7 +97,7 @@ char * AXSH_StringToGuid(const char *pGuidString, GUID *pGuid)
     return NULL;
 }
 
-// TODO use FormatMessage() Windows API functioni instead?
+// TODO use FormatMessage() Windows API function instead?
 // TODO check https://en.wikipedia.org/wiki/HRESULT
 char * AXSH_HRESULT2String(HRESULT hr)
 {
