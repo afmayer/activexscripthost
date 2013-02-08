@@ -119,6 +119,7 @@ int AXSH_Tcl_ParseText(ClientData clientData, Tcl_Interp *interp, int objc,
     int i;
     Tcl_Obj *pScript = NULL;
     char *optionTable[] = {"-visible", "-expression", "-persistent", NULL};
+    EXCEPINFO exceptionInfo = {0, 0, NULL, NULL, NULL, 0, NULL, 0, 0};
 
     if (objc < 3)
     {
@@ -181,7 +182,18 @@ int AXSH_Tcl_ParseText(ClientData clientData, Tcl_Interp *interp, int objc,
             0, /* start line number */
             parseScriptTextFlags,
             pResultVariantPtr, /* result is stored here */
-            NULL);
+            &exceptionInfo);
+
+    if (hr == DISP_E_EXCEPTION)
+    {
+        // TODO read exceptionInfo and set as Tcl result, return TCL_ERROR
+
+        /* free BSTR variables in exception info */
+        SysFreeString(exceptionInfo.bstrSource);
+        SysFreeString(exceptionInfo.bstrDescription);
+        SysFreeString(exceptionInfo.bstrHelpFile);
+    }
+
     if (FAILED(hr))
     {
         AXSH_SetTclResultToHRESULTErrString(interp, buffer, sizeof(buffer), hr,
