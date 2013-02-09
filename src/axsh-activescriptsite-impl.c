@@ -118,17 +118,20 @@ static STDMETHODIMP OnScriptError(AXSH_TclActiveScriptSite *this,
     *ppErrorResult = Tcl_NewObj();
     if (ei.bstrSource != NULL)
     {
-        Tcl_AppendUnicodeToObj(*ppErrorResult, ei.bstrSource, -1);
+        Tcl_AppendUnicodeToObj(*ppErrorResult, ei.bstrSource,
+            SysStringLen(ei.bstrSource));
         Tcl_AppendToObj(*ppErrorResult, ":", -1);
     }
     if (ei.bstrDescription != NULL)
     {
         Tcl_AppendToObj(*ppErrorResult, " ", -1);
-        Tcl_AppendUnicodeToObj(*ppErrorResult, ei.bstrDescription, -1);
+        Tcl_AppendUnicodeToObj(*ppErrorResult, ei.bstrDescription,
+            SysStringLen(ei.bstrDescription));
     }
     {
         char lineAsText[32];
-        _snprintf(lineAsText, sizeof(lineAsText), " at line %u", lineNumber);
+        _snprintf(lineAsText, sizeof(lineAsText), " at line %u",
+            lineNumber + 1);
         lineAsText[sizeof(lineAsText) - 1] = 0;
         Tcl_AppendToObj(*ppErrorResult, lineAsText, -1);
     }
