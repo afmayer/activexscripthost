@@ -321,6 +321,18 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="Tcl Files"
+			>
+			<File
+				RelativePath=".\tcl\activexscripthost.tcl"
+				>
+			</File>
+			<File
+				RelativePath=".\tcl\pkgIndex.tcl"
+				>
+			</File>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>
