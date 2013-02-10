@@ -7,8 +7,8 @@
 #include "axsh-include-all.h"
 
 #define AXSH_NAMESPACE "activexscripthost"
-#define AXSH_VERSIONMAJOR  1 /* IMPORTANT: keep the version number */
-#define AXSH_VERSIONMINOR  0 /*       consistent with pkgIndex.tcl */
+#define AXSH_VERSIONMAJOR  0  /* IMPORTANT: keep the version number */
+#define AXSH_VERSIONMINOR  15 /*       consistent with pkgIndex.tcl */
 #define QUOTESTR_(x) #x
 #define QUOTESTR(x) QUOTESTR_(x)
 
