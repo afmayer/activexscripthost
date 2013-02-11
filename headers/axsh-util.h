@@ -14,6 +14,7 @@ char * AXSH_StringToGuid(const char *pGuidString, GUID *pGuid);
 char * AXSH_HRESULT2String(HRESULT hr);
 char * AXSH_GetEngineCLSIDFromProgID(const wchar_t *pProgIDStringUTF16,
                                      GUID * pGuid);
+Tcl_Obj * AXSH_VariantToTclObj(VARIANT *pVariant);
 
 #ifdef __cplusplus
 }

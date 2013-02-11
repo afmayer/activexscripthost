@@ -195,3 +195,70 @@ char * AXSH_GetEngineCLSIDFromProgID(const wchar_t *pProgIDStringUTF16,
     /* no error */
     return NULL;
 }
+
+Tcl_Obj * AXSH_VariantToTclObj(VARIANT *pVariant)
+{
+    Tcl_Obj *pObject = NULL;
+
+    if (pVariant->vt & VT_ARRAY)
+        return NULL; // TODO handle VT_ARRAY in AXSH_VariantToTclObj()
+
+    if (pVariant->vt & VT_BYREF)
+        return NULL; // TODO handle VT_BYREF in AXSH_VariantToTclObj()
+
+    switch (pVariant->vt & VT_TYPEMASK)
+    {
+    case VT_EMPTY:     /* nothing */
+        break;
+
+    case VT_NULL:      /* SQL style Null */
+        break; // TODO handle VT_NULL in AXSH_VariantToTclObj()
+
+    case VT_I2:        /* 2 byte signed int */
+        pObject = Tcl_NewIntObj(V_I2(pVariant)); break;
+    case VT_I4:        /* 4 byte signed int */
+        pObject = Tcl_NewIntObj(V_I4(pVariant)); break;
+    case VT_R4:        /* 4 byte real */
+        pObject = Tcl_NewDoubleObj(V_R4(pVariant)); break;
+    case VT_R8:        /* 8 byte real */
+        pObject = Tcl_NewDoubleObj(V_R8(pVariant)); break;
+
+    case VT_CY:        /* currency */
+        break; // TODO handle CURRENCY type in AXSH_VariantToTclObj()
+    case VT_DATE:      /* date */
+        break; // TODO handle VT_DATE --> http://msdn.microsoft.com/en-us/library/vstudio/82ab7w69(v=vs.90).aspx
+
+    case VT_BSTR:      /* OLE Automation string */
+        pObject = Tcl_NewUnicodeObj(V_BSTR(pVariant),
+            SysStringLen(V_BSTR(pVariant)));
+        break;
+
+    case VT_DISPATCH:  /* (IDispatch *) */
+    case VT_ERROR:     /* SCODE */
+        break; // TODO handle VT_DISPATCH and VT_ERROR in AXSH_VariantToTclObj()
+
+    case VT_BOOL:      /* True=-1, False=0 */
+        pObject = Tcl_NewBooleanObj(V_BOOL(pVariant) == 0 ? 0 : 1); break;
+
+    case VT_VARIANT:   /* (VARIANT *) */
+    case VT_UNKNOWN:   /* (IUnknown *) */
+    case VT_DECIMAL:   /* 16 byte fixed point */
+    case VT_RECORD:    /* user defined type */
+        break; // TODO handle VT_VARIANT, VT_UNKNOWN, VT_DECIMAL and VT_RECORD in AXSH_VariantToTclObj()
+
+    case VT_I1:        /* signed char */
+        pObject = Tcl_NewIntObj(V_I1(pVariant)); break;
+    case VT_UI1:       /* unsigned char */
+        pObject = Tcl_NewIntObj(V_UI1(pVariant)); break;
+    case VT_UI2:       /* unsigned short */
+        pObject = Tcl_NewIntObj(V_UI2(pVariant)); break;
+    case VT_UI4:       /* unsigned long */
+        pObject = Tcl_NewLongObj(V_UI4(pVariant)); break;
+    case VT_INT:       /* signed machine int */
+        pObject = Tcl_NewIntObj(V_INT(pVariant)); break;
+    case VT_UINT:      /* unsigned machine int */
+        pObject = Tcl_NewLongObj(V_UINT(pVariant)); break;
+    }
+
+    return pObject;
+}
