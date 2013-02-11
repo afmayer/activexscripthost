@@ -189,15 +189,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\axsh-string-guid-util.c"
-				>
-			</File>
-			<File
 				RelativePath=".\src\axsh-tcl-engine-subcommands.c"
 				>
 			</File>
 			<File
 				RelativePath=".\src\axsh-tcl.c"
+				>
+			</File>
+			<File
+				RelativePath=".\src\axsh-util.c"
 				>
 			</File>
 		</Filter>
@@ -227,15 +227,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\headers\axsh-string-guid-util.h"
-				>
-			</File>
-			<File
 				RelativePath=".\headers\axsh-tcl-engine-subcommands.h"
 				>
 			</File>
 			<File
 				RelativePath=".\headers\axsh-tcl.h"
+				>
+			</File>
+			<File
+				RelativePath=".\headers\axsh-util.h"
 				>
 			</File>
 			<File

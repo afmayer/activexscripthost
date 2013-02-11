@@ -17,7 +17,7 @@
 #include "axsh-tcl-engine-subcommands.h"
 #include "axsh-engine-interact.h"
 #include "axsh-activescriptsite-impl.h"
-#include "axsh-string-guid-util.h"
+#include "axsh-util.h"
 #include "axsh-misc-defines.h"
 #include "axsh-hostcontrol-impl.h"
 
