@@ -196,15 +196,60 @@ char * AXSH_GetEngineCLSIDFromProgID(const wchar_t *pProgIDStringUTF16,
     return NULL;
 }
 
+/* Convert a VARIANT to a Tcl object with a reference count of zero.
+ */
 Tcl_Obj * AXSH_VariantToTclObj(VARIANT *pVariant)
 {
     Tcl_Obj *pObject = NULL;
 
-    if (pVariant->vt & VT_ARRAY)
-        return NULL; // TODO handle VT_ARRAY in AXSH_VariantToTclObj()
-
     if (pVariant->vt & VT_BYREF)
         return NULL; // TODO handle VT_BYREF in AXSH_VariantToTclObj()
+
+    if (V_ISARRAY(pVariant))
+    {
+        if (pVariant->vt == (VT_ARRAY | VT_VARIANT))
+        {
+            unsigned int i;
+            unsigned int elements = 1;
+            unsigned int elementSize = V_ARRAY(pVariant)->cbElements;
+
+            SafeArrayLock(V_ARRAY(pVariant));
+
+            for (i=0; i < V_ARRAY(pVariant)->cDims; i++)
+            {
+                elements = elements * V_ARRAY(pVariant)->rgsabound[i].cElements;
+            }
+
+            pObject = Tcl_NewListObj(0, NULL);
+
+            // TODO IMPROVE - THIS CONVERTS EVERYTHING INTO A FLAT ARRAY - USE SafeArrayPtrOfIndex()
+            for (i=0; i < elements; i++)
+            {
+                Tcl_Obj *pTemp = AXSH_VariantToTclObj((VARIANT *)(
+                        (unsigned char *)(V_ARRAY(pVariant)->pvData) +
+                        i * elementSize));
+                if (pTemp != NULL)
+                {
+                    Tcl_ListObjAppendElement(NULL, pObject, pTemp);
+                }
+                else
+                {
+                    /* some conversions return NULL which cannot be appended as
+                     * a Tcl Object to a list... add an empty string instead */
+                    Tcl_ListObjAppendElement(NULL,
+                        pObject, Tcl_NewStringObj("", -1));
+                }
+            }
+
+            SafeArrayUnlock(V_ARRAY(pVariant));
+        }
+        else
+        {
+            // TODO handle more VT_ARRAY types in AXSH_VariantToTclObj()
+        }
+
+        return pObject;
+    }
 
     switch (pVariant->vt & VT_TYPEMASK)
     {
