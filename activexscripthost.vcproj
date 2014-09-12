@@ -92,7 +92,7 @@
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="1"
+			ConfigurationType="2"
 			CharacterSet="0"
 			WholeProgramOptimization="1"
 			>
