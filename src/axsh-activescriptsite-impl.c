@@ -66,10 +66,15 @@ static STDMETHODIMP GetItemInfo(AXSH_TclActiveScriptSite *this,
     if (!wcscmp(objectName, L"tcl"))
     {
         if (dwReturnMask & SCRIPTINFO_IUNKNOWN)
-            *objPtr = (IUnknown *)(this->pEngineState->pTclHostControl);
+        {
+            *objPtr =
+                (IUnknown *)(&this->pEngineState->pTclHostControl->hostCtl);
+        }
 
         if (dwReturnMask & SCRIPTINFO_ITYPEINFO)
+        {
             *typeInfo = this->pEngineState->pTclHostControl->pObjectTypeInfo;
+        }
 
         return S_OK;
     }
