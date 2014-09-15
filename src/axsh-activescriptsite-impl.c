@@ -13,13 +13,15 @@
 /* -------------------------------------------------------------------------
    ------------------------- IActiveScriptSite -----------------------------
    ------------------------------------------------------------------------- */
-static STDMETHODIMP_(ULONG) AddRef(AXSH_TclActiveScriptSite *this)
+static STDMETHODIMP_(ULONG) IActiveScriptSite_AddRef(
+            AXSH_TclActiveScriptSite *this)
 {
     this->referenceCount++;
     return this->referenceCount;
 }
 
-static STDMETHODIMP_(ULONG) Release(AXSH_TclActiveScriptSite *this)
+static STDMETHODIMP_(ULONG) IActiveScriptSite_Release(
+            AXSH_TclActiveScriptSite *this)
 {
     this->referenceCount--;
     if (this->referenceCount == 0)
@@ -31,8 +33,10 @@ static STDMETHODIMP_(ULONG) Release(AXSH_TclActiveScriptSite *this)
     return this->referenceCount;
 }
 
-static STDMETHODIMP QueryInterface(AXSH_TclActiveScriptSite *this, REFIID riid,
-                                   void **ppv)
+static STDMETHODIMP IActiveScriptSite_QueryInterface(
+            AXSH_TclActiveScriptSite *this,
+            REFIID riid,
+            void **ppv)
 {
     // An ActiveX Script Host is supposed to provide an object
     // with multiple interfaces, where the base object is an
@@ -50,15 +54,18 @@ static STDMETHODIMP QueryInterface(AXSH_TclActiveScriptSite *this, REFIID riid,
         *ppv = 0;
         return E_NOINTERFACE;
     }
-    AddRef(this);
+    IActiveScriptSite_AddRef(this);
     return S_OK;
 }
 
 // Called by the script engine to get any pointers to our own host-defined
 // objects whose functions a script may directly call.
-static STDMETHODIMP GetItemInfo(AXSH_TclActiveScriptSite *this,
-                                LPCOLESTR objectName, DWORD dwReturnMask,
-                                IUnknown **objPtr, ITypeInfo **typeInfo)
+static STDMETHODIMP IActiveScriptSite_GetItemInfo(
+            AXSH_TclActiveScriptSite *this,
+            LPCOLESTR objectName,
+            DWORD dwReturnMask,
+            IUnknown **objPtr,
+            ITypeInfo **typeInfo)
 {
     if (dwReturnMask & SCRIPTINFO_IUNKNOWN) *objPtr = 0;
     if (dwReturnMask & SCRIPTINFO_ITYPEINFO) *typeInfo = 0;
@@ -89,8 +96,9 @@ static STDMETHODIMP GetItemInfo(AXSH_TclActiveScriptSite *this,
 // position (in the script) where the error occurred, an error message we can
 // display to the user, etc. Typically, our OnScriptError will get the error
 // message and display it to the user.
-static STDMETHODIMP OnScriptError(AXSH_TclActiveScriptSite *this,
-                                  IActiveScriptError *scriptError)
+static STDMETHODIMP IActiveScriptSite_OnScriptError(
+            AXSH_TclActiveScriptSite *this,
+            IActiveScriptError *scriptError)
 {
     ULONG       lineNumber;
     BSTR        desc;
@@ -158,7 +166,9 @@ static STDMETHODIMP OnScriptError(AXSH_TclActiveScriptSite *this,
 
 // Called when the script engine wants to know what language ID our
 // program is using.
-static STDMETHODIMP GetLCID(AXSH_TclActiveScriptSite *this, LCID *lcid)
+static STDMETHODIMP IActiveScriptSite_GetLCID(
+            AXSH_TclActiveScriptSite *this,
+            LCID *lcid)
 {
     *lcid = LOCALE_USER_DEFAULT;
     return S_OK;
@@ -185,8 +195,9 @@ static STDMETHODIMP GetLCID(AXSH_TclActiveScriptSite *this, LCID *lcid)
 // believe that engines without any IPersist object bother with this,
 // and I have seen example engines _with_ an IPersist that don't
 // bother with it.
-static STDMETHODIMP GetDocVersionString(AXSH_TclActiveScriptSite *this,
-                                        BSTR *version) 
+static STDMETHODIMP IActiveScriptSite_GetDocVersionString(
+            AXSH_TclActiveScriptSite *this,
+            BSTR *version)
 {
     // We have no document versions
     *version = 0;
@@ -202,8 +213,10 @@ static STDMETHODIMP GetDocVersionString(AXSH_TclActiveScriptSite *this,
 // has returned to INITIALIZED state. In many engines, this is not
 // called because an engine alone can't determine when we are going
 // to stop running/adding scripts to it.
-static STDMETHODIMP OnScriptTerminate(AXSH_TclActiveScriptSite *this,
-                                      const VARIANT *pvr, const EXCEPINFO *pei)
+static STDMETHODIMP IActiveScriptSite_OnScriptTerminate(
+            AXSH_TclActiveScriptSite *this,
+            const VARIANT *pvr,
+            const EXCEPINFO *pei)
 {
     return S_OK;
 }
@@ -211,8 +224,9 @@ static STDMETHODIMP OnScriptTerminate(AXSH_TclActiveScriptSite *this,
 // Called when the script engine's state is changed (for example, by
 // us calling the engine IActiveScript->SetScriptState). We're passed
 // the new state.
-static STDMETHODIMP OnStateChange(AXSH_TclActiveScriptSite *this,
-                                  SCRIPTSTATE state)
+static STDMETHODIMP IActiveScriptSite_OnStateChange(
+            AXSH_TclActiveScriptSite *this,
+            SCRIPTSTATE state)
 {
     return S_OK;
 }
@@ -221,14 +235,16 @@ static STDMETHODIMP OnStateChange(AXSH_TclActiveScriptSite *this,
 // script added via the engine IActiveScriptParse->ParseScriptText()
 // or AddScriptlet(). This is also called when our IApp object
 // calls some function in the script.
-static STDMETHODIMP OnEnterScript(AXSH_TclActiveScriptSite *this)
+static STDMETHODIMP IActiveScriptSite_OnEnterScript(
+            AXSH_TclActiveScriptSite *this)
 {
     return S_OK;
 }
 
 // Called immediately after the script engine executes/interprets
 // each script.
-static STDMETHODIMP OnLeaveScript(AXSH_TclActiveScriptSite *this) 
+static STDMETHODIMP IActiveScriptSite_OnLeaveScript(
+            AXSH_TclActiveScriptSite *this)
 {
     return S_OK;
 }
@@ -236,38 +252,42 @@ static STDMETHODIMP OnLeaveScript(AXSH_TclActiveScriptSite *this)
 /* -------------------------------------------------------------------------
    ---------------------- IActiveScriptSiteWindow --------------------------
    ------------------------------------------------------------------------- */
-// TODO other names for 'secondary' interface implementations
-static STDMETHODIMP siteWnd_QueryInterface(IActiveScriptSiteWindow *this,
-                                           REFIID riid, void **ppv)
+static STDMETHODIMP IActiveScriptSiteWindow_QueryInterface(
+            IActiveScriptSiteWindow *this,
+            REFIID riid, void **ppv)
 {
     /* delegate to base object */
     AXSH_TclActiveScriptSite *pBaseObj =
         (AXSH_TclActiveScriptSite *)(((unsigned char *)this -
         offsetof(AXSH_TclActiveScriptSite, siteWnd)));
-    return QueryInterface(pBaseObj, riid, ppv);
+    return IActiveScriptSite_QueryInterface(pBaseObj, riid, ppv);
 }
 
-static STDMETHODIMP_(ULONG) siteWnd_AddRef(IActiveScriptSiteWindow *this)
+static STDMETHODIMP_(ULONG) IActiveScriptSiteWindow_AddRef(
+            IActiveScriptSiteWindow *this)
 {
     /* delegate to base object */
     AXSH_TclActiveScriptSite *pBaseObj =
         (AXSH_TclActiveScriptSite *)(((unsigned char *)this -
         offsetof(AXSH_TclActiveScriptSite, siteWnd)));
-    return AddRef(pBaseObj);
+    return IActiveScriptSite_AddRef(pBaseObj);
 }
 
-static STDMETHODIMP_(ULONG) siteWnd_Release(IActiveScriptSiteWindow *this)
+static STDMETHODIMP_(ULONG) IActiveScriptSiteWindow_Release(
+            IActiveScriptSiteWindow *this)
 {
     /* delegate to base object */
     AXSH_TclActiveScriptSite *pBaseObj =
         (AXSH_TclActiveScriptSite *)(((unsigned char *)this -
         offsetof(AXSH_TclActiveScriptSite, siteWnd)));
-    return Release(pBaseObj);
+    return IActiveScriptSite_Release(pBaseObj);
 }
 
 // Called by the script engine when it wants to know what window it should
 // use as the owner of any dialog box the engine presents.
-static STDMETHODIMP GetSiteWindow(IActiveScriptSiteWindow *this, HWND *phwnd)
+static STDMETHODIMP IActiveScriptSiteWindow_GetSiteWindow(
+            IActiveScriptSiteWindow *this,
+            HWND *phwnd)
 {
     // We have no app window
     *phwnd = 0;
@@ -276,7 +296,9 @@ static STDMETHODIMP GetSiteWindow(IActiveScriptSiteWindow *this, HWND *phwnd)
 
 // Called when the script engine wants us to enable/disable all of our open
 // windows.
-static STDMETHODIMP EnableModeless(IActiveScriptSiteWindow *this, BOOL enable)
+static STDMETHODIMP IActiveScriptSiteWindow_EnableModeless(
+            IActiveScriptSiteWindow *this,
+            BOOL enable)
 {
     // We have no open windows
     return S_OK;
@@ -290,27 +312,27 @@ static STDMETHODIMP EnableModeless(IActiveScriptSiteWindow *this, BOOL enable)
 #pragma warning( push )
 #pragma warning( disable : 4028 )
 static IActiveScriptSiteVtbl g_SiteVTable = {
-    QueryInterface,
-    AddRef,
-    Release,
-    GetLCID,
-    GetItemInfo,
-    GetDocVersionString,
-    OnScriptTerminate,
-    OnStateChange,
-    OnScriptError,
-    OnEnterScript,
-    OnLeaveScript
+    IActiveScriptSite_QueryInterface,
+    IActiveScriptSite_AddRef,
+    IActiveScriptSite_Release,
+    IActiveScriptSite_GetLCID,
+    IActiveScriptSite_GetItemInfo,
+    IActiveScriptSite_GetDocVersionString,
+    IActiveScriptSite_OnScriptTerminate,
+    IActiveScriptSite_OnStateChange,
+    IActiveScriptSite_OnScriptError,
+    IActiveScriptSite_OnEnterScript,
+    IActiveScriptSite_OnLeaveScript
 };
 #pragma warning( pop )
 
 /* vtable for ActiveScriptSiteWindow object */
 static IActiveScriptSiteWindowVtbl g_SiteWindowVTable = {
-    siteWnd_QueryInterface,
-    siteWnd_AddRef,
-    siteWnd_Release,
-    GetSiteWindow,
-    EnableModeless
+    IActiveScriptSiteWindow_QueryInterface,
+    IActiveScriptSiteWindow_AddRef,
+    IActiveScriptSiteWindow_Release,
+    IActiveScriptSiteWindow_GetSiteWindow,
+    IActiveScriptSiteWindow_EnableModeless
 };
 
 /* -------------------------------------------------------------------------
