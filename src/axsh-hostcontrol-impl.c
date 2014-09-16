@@ -20,13 +20,13 @@ const IID IID_ITclHostControl = {0xde08c005, 0xcadc, 0x4444, {0x90, 0xdd,
    -------------------------- ITclHostControl ------------------------------
    ------------------------------------------------------------------------- */
 // TODO ITclHostControl implememtations
-static STDMETHODIMP_(ULONG) AddRef(AXSH_TclHostControl *this)
+static STDMETHODIMP_(ULONG) ITclHostControl_AddRef(AXSH_TclHostControl *this)
 {
     this->referenceCount++;
     return this->referenceCount;
 }
 
-static STDMETHODIMP_(ULONG) Release(AXSH_TclHostControl *this)
+static STDMETHODIMP_(ULONG) ITclHostControl_Release(AXSH_TclHostControl *this)
 {
     this->referenceCount--;
     if (this->referenceCount == 0)
@@ -45,8 +45,10 @@ static STDMETHODIMP_(ULONG) Release(AXSH_TclHostControl *this)
     return this->referenceCount;
 }
 
-static STDMETHODIMP QueryInterface(AXSH_TclHostControl *this, REFIID riid,
-                                   void **ppv)
+static STDMETHODIMP ITclHostControl_QueryInterface(
+            AXSH_TclHostControl *this,
+            REFIID riid,
+            void **ppv)
 {
     if (IsEqualIID(riid, &IID_IUnknown) || IsEqualIID(riid, &IID_IDispatch))
         *ppv = this;
@@ -60,27 +62,36 @@ static STDMETHODIMP QueryInterface(AXSH_TclHostControl *this, REFIID riid,
         *ppv = 0;
         return E_NOINTERFACE;
     }
-    AddRef(this);
+    ITclHostControl_AddRef(this);
     return S_OK;
 }
 
-static STDMETHODIMP GetTypeInfoCount(AXSH_TclHostControl *this, UINT *pctinfo)
+static STDMETHODIMP ITclHostControl_GetTypeInfoCount(
+            AXSH_TclHostControl *this,
+            UINT *pctinfo)
 {
     *pctinfo = 1;
     return S_OK;
 }
 
-static STDMETHODIMP GetTypeInfo(AXSH_TclHostControl *this, UINT ctinfo,
-                                LCID lcid, ITypeInfo **typeInfo)
+static STDMETHODIMP ITclHostControl_GetTypeInfo(
+            AXSH_TclHostControl *this,
+            UINT ctinfo,
+            LCID lcid,
+            ITypeInfo **typeInfo)
 {
     *typeInfo = this->pVtableTypeInfo;
     this->pVtableTypeInfo->lpVtbl->AddRef(this->pVtableTypeInfo);
     return S_OK;
 }
 
-static STDMETHODIMP GetIDsOfNames(AXSH_TclHostControl *this, REFIID riid,
-                                  OLECHAR **rgszNames, UINT cNames, LCID lcid,
-                                  DISPID *rgdispid)
+static STDMETHODIMP ITclHostControl_GetIDsOfNames(
+            AXSH_TclHostControl *this,
+            REFIID riid,
+            OLECHAR **rgszNames,
+            UINT cNames,
+            LCID lcid,
+            DISPID *rgdispid)
 {
     HRESULT hr;
 
@@ -90,9 +101,16 @@ static STDMETHODIMP GetIDsOfNames(AXSH_TclHostControl *this, REFIID riid,
     return hr;
 }
 
-static STDMETHODIMP Invoke(AXSH_TclHostControl *this, DISPID id, REFIID riid,
-                           LCID lcid, WORD flag, DISPPARAMS *params,
-                           VARIANT *ret, EXCEPINFO *pei, UINT *pu)
+static STDMETHODIMP ITclHostControl_Invoke(
+            AXSH_TclHostControl *this,
+            DISPID id,
+            REFIID riid,
+            LCID lcid,
+            WORD flag,
+            DISPPARAMS *params,
+            VARIANT *ret,
+            EXCEPINFO *pei,
+            UINT *pu)
 {
     HRESULT hr;
 
@@ -101,8 +119,10 @@ static STDMETHODIMP Invoke(AXSH_TclHostControl *this, DISPID id, REFIID riid,
         this, id, flag, params, ret, pei, pu);
     return hr;
 }
-static STDMETHODIMP GetStringVar(AXSH_TclHostControl *this, BSTR variable,
-                                 BSTR *value)
+static STDMETHODIMP ITclHostControl_GetStringVar(
+            AXSH_TclHostControl *this,
+            BSTR variable,
+            BSTR *value)
 {
     Tcl_Obj     *pVariableNameObj;
     Tcl_Obj     *pVariableObj;
@@ -126,8 +146,10 @@ static STDMETHODIMP GetStringVar(AXSH_TclHostControl *this, BSTR variable,
     return S_OK;
 }
 
-static STDMETHODIMP GetIntVar(AXSH_TclHostControl *this, BSTR variable,
-                              INT *value)
+static STDMETHODIMP ITclHostControl_GetIntVar(
+            AXSH_TclHostControl *this,
+            BSTR variable,
+            INT *value)
 {
     Tcl_Obj *pVariableNameObj;
     Tcl_Obj *pVariableObj;
@@ -152,36 +174,41 @@ static STDMETHODIMP GetIntVar(AXSH_TclHostControl *this, BSTR variable,
    ------------------------------------------------------------------------- */
 // TODO IProvideMultipleClassInfo implementations
 // TODO other names for 'secondary' interface implementations
-static STDMETHODIMP QueryInterface_CInfo(IProvideMultipleClassInfo *this,
-                                         REFIID riid, void **ppv)
+static STDMETHODIMP IProvideMultipleClassInfo_QueryInterface(
+            IProvideMultipleClassInfo *this,
+            REFIID riid,
+            void **ppv)
 {
     /* delegate to base object */
     AXSH_TclHostControl *pBaseObj =
         (AXSH_TclHostControl *)(((unsigned char *)this -
         offsetof(AXSH_TclHostControl, multiClassInfo)));
-    return QueryInterface(pBaseObj, riid, ppv);
+    return ITclHostControl_QueryInterface(pBaseObj, riid, ppv);
 }
 
-static STDMETHODIMP_(ULONG) AddRef_CInfo(IProvideMultipleClassInfo *this)
+static STDMETHODIMP_(ULONG) IProvideMultipleClassInfo_AddRef(
+            IProvideMultipleClassInfo *this)
 {
     /* delegate to base object */
     AXSH_TclHostControl *pBaseObj =
         (AXSH_TclHostControl *)(((unsigned char *)this -
         offsetof(AXSH_TclHostControl, multiClassInfo)));
-    return AddRef(pBaseObj);
+    return ITclHostControl_AddRef(pBaseObj);
 }
 
-static STDMETHODIMP_(ULONG) Release_CInfo(IProvideMultipleClassInfo *this)
+static STDMETHODIMP_(ULONG) IProvideMultipleClassInfo_Release(
+            IProvideMultipleClassInfo *this)
 {
     /* delegate to base object */
     AXSH_TclHostControl *pBaseObj =
         (AXSH_TclHostControl *)(((unsigned char *)this -
         offsetof(AXSH_TclHostControl, multiClassInfo)));
-    return Release(pBaseObj);
+    return ITclHostControl_Release(pBaseObj);
 }
 
-static STDMETHODIMP GetClassInfo_CInfo(IProvideMultipleClassInfo *this,
-                                       ITypeInfo **classITypeInfo)
+static STDMETHODIMP IProvideMultipleClassInfo_GetClassInfo(
+            IProvideMultipleClassInfo *this,
+            ITypeInfo **classITypeInfo)
 {
     AXSH_TclHostControl *pBaseObj =
         (AXSH_TclHostControl *)(((unsigned char *)this -
@@ -191,26 +218,32 @@ static STDMETHODIMP GetClassInfo_CInfo(IProvideMultipleClassInfo *this,
     return S_OK;
 }
 
-static STDMETHODIMP GetGUID_CInfo(IProvideMultipleClassInfo *this,
-                                  DWORD guidType, GUID *guid)
+static STDMETHODIMP IProvideMultipleClassInfo_GetGUID(
+            IProvideMultipleClassInfo *this,
+            DWORD guidType,
+            GUID *guid)
 {
     if (guidType == GUIDKIND_DEFAULT_SOURCE_DISP_IID)
         return E_NOTIMPL;
 
     return E_INVALIDARG;
 }
-static STDMETHODIMP GetMultiTypeInfoCount_CInfo(
-                                IProvideMultipleClassInfo *this, ULONG *count)
+static STDMETHODIMP IProvideMultipleClassInfo_GetMultiTypeInfoCount(
+            IProvideMultipleClassInfo *this,
+            ULONG *count)
 {
     *count = 1;
     return S_OK;
 }
-static STDMETHODIMP GetInfoOfIndex_CInfo(IProvideMultipleClassInfo *this,
-                                         ULONG objNum, DWORD flags,
-                                         ITypeInfo **classITypeInfo,
-                                         DWORD *retFlags, ULONG *reservedIds,
-                                         GUID *defVTableGuid,
-                                         GUID *defSrcVTableGuid)
+static STDMETHODIMP IProvideMultipleClassInfo_GetInfoOfIndex(
+            IProvideMultipleClassInfo *this,
+            ULONG objNum,
+            DWORD flags,
+            ITypeInfo **classITypeInfo,
+            DWORD *retFlags,
+            ULONG *reservedIds,
+            GUID *defVTableGuid,
+            GUID *defSrcVTableGuid)
 {
     AXSH_TclHostControl *pBaseObj =
         (AXSH_TclHostControl *)(((unsigned char *)this -
@@ -259,27 +292,27 @@ static STDMETHODIMP GetInfoOfIndex_CInfo(IProvideMultipleClassInfo *this,
 #pragma warning( push )
 #pragma warning( disable : 4028 )
 static ITclHostControlVtbl g_TclHostControlVTable = {
-    QueryInterface,
-    AddRef,
-    Release,
-    GetTypeInfoCount,
-    GetTypeInfo,
-    GetIDsOfNames,
-    Invoke,
-    GetStringVar,
-    GetIntVar
+    ITclHostControl_QueryInterface,
+    ITclHostControl_AddRef,
+    ITclHostControl_Release,
+    ITclHostControl_GetTypeInfoCount,
+    ITclHostControl_GetTypeInfo,
+    ITclHostControl_GetIDsOfNames,
+    ITclHostControl_Invoke,
+    ITclHostControl_GetStringVar,
+    ITclHostControl_GetIntVar
 };
 #pragma warning( pop )
 
 /* vtable for IProvideMultipleClassInfo object */
 static IProvideMultipleClassInfoVtbl g_MultiClassInfoVTable = {
-    QueryInterface_CInfo,
-    AddRef_CInfo,
-    Release_CInfo,
-    GetClassInfo_CInfo,
-    GetGUID_CInfo,
-    GetMultiTypeInfoCount_CInfo,
-    GetInfoOfIndex_CInfo
+    IProvideMultipleClassInfo_QueryInterface,
+    IProvideMultipleClassInfo_AddRef,
+    IProvideMultipleClassInfo_Release,
+    IProvideMultipleClassInfo_GetClassInfo,
+    IProvideMultipleClassInfo_GetGUID,
+    IProvideMultipleClassInfo_GetMultiTypeInfoCount,
+    IProvideMultipleClassInfo_GetInfoOfIndex
 };
 
 /* -------------------------------------------------------------------------
