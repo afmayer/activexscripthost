@@ -22,12 +22,6 @@ extern "C" {
 __declspec(dllexport)
 int Activexscripthost_Init(Tcl_Interp *interp);
 
-int AXSH_Tcl_OpenEngine(ClientData clientData, Tcl_Interp *interp, int objc,
-                        Tcl_Obj *CONST objv[]);
-
-int AXSH_Tcl_EngineCommandProc(ClientData clientData, Tcl_Interp *interp, int objc,
-                        Tcl_Obj *CONST objv[]);
-
 #ifdef __cplusplus
 }
 #endif

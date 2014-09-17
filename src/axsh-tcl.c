@@ -7,44 +7,53 @@
  * type library is never released */
 ITypeLib *g_pTypeLibrary;
 
-int Activexscripthost_Init(Tcl_Interp *interp)
+static int AXSH_Tcl_EngineCommandProc(
+            ClientData clientData,
+            Tcl_Interp *interp,
+            int objc,
+            Tcl_Obj *CONST objv[])
 {
     int ret;
-    HRESULT hr;
+    int subcommandIndex;
+    char *subcommandTable[] = {"close", "parse", "setscriptstate", NULL};
 
-    /* initialize Tcl Stubs */
-    if (Tcl_InitStubs(interp, "8.4", 0) == NULL)
-        return TCL_ERROR;
-
-    /* the required type library is loaded in this function call - the working
-     * directory is temporarily set to the directory conatining the DLL
-     * during "load", so the filename without a path is enough for
-     * LoadTypeLib() --> it's otherwise hard to discover the DLL path */
-    hr = LoadTypeLib(L"activexscripthost.dll", &g_pTypeLibrary);
-    if (FAILED(hr))
+    if (objc < 2)
     {
-        Tcl_SetResult(interp, "cannot load type library - loaded DLL must be "
-            "in current working directory", TCL_STATIC);
+        Tcl_WrongNumArgs(interp, 1, objv, "subcommand ...");
         return TCL_ERROR;
     }
 
-    Tcl_CreateObjCommand(interp, AXSH_NAMESPACE "::openengine",
-        AXSH_Tcl_OpenEngine, NULL, NULL);
-
-    /* export namespace procedures */
-    Tcl_Eval(interp, "namespace eval " AXSH_NAMESPACE " {namespace export *}");
-
-    /* provide package */
-    ret = Tcl_PkgProvide(interp, AXSH_NAMESPACE, QUOTESTR(AXSH_VERSIONMAJOR)
-            "." QUOTESTR(AXSH_VERSIONMINOR));
+    /* get subcommand */
+    ret = Tcl_GetIndexFromObj(interp, objv[1], subcommandTable, "subcommand",
+        0, &subcommandIndex);
     if (ret != TCL_OK)
         return TCL_ERROR;
 
+    /* delegate subcommand */
+    switch (subcommandIndex)
+    {
+    case 0: /* close */
+        return AXSH_Tcl_CloseScriptEngine(clientData, interp, objc, objv);
+    case 1: /* parse */
+        return AXSH_Tcl_ParseText(clientData, interp, objc, objv);
+    case 2: /* setscriptstate */
+        return AXSH_Tcl_SetScriptState(clientData, interp, objc, objv);
+    default:
+        Tcl_SetResult(interp, "internal error - unhandled subcommand",
+            TCL_STATIC);
+        return TCL_ERROR;
+    }
+
+    /* no error - but actually we should not end up here, evereyone should
+       have returned in the switch block */
     return TCL_OK;
 }
 
-int AXSH_Tcl_OpenEngine(ClientData clientData, Tcl_Interp *interp, int objc,
-                        Tcl_Obj *CONST objv[])
+static int AXSH_Tcl_OpenEngine(
+            ClientData clientData,
+            Tcl_Interp *interp,
+            int objc,
+            Tcl_Obj *CONST objv[])
 {
     AXSH_EngineState *pEngineState;
     char *pRetString;
@@ -164,41 +173,38 @@ failAndFreeEngineState:
     return TCL_ERROR;
 }
 
-int AXSH_Tcl_EngineCommandProc(ClientData clientData, Tcl_Interp *interp, int objc,
-                        Tcl_Obj *CONST objv[])
+int Activexscripthost_Init(Tcl_Interp *interp)
 {
     int ret;
-    int subcommandIndex;
-    char *subcommandTable[] = {"close", "parse", "setscriptstate", NULL};
+    HRESULT hr;
 
-    if (objc < 2)
+    /* initialize Tcl Stubs */
+    if (Tcl_InitStubs(interp, "8.4", 0) == NULL)
+        return TCL_ERROR;
+
+    /* the required type library is loaded in this function call - the working
+     * directory is temporarily set to the directory conatining the DLL
+     * during "load", so the filename without a path is enough for
+     * LoadTypeLib() --> it's otherwise hard to discover the DLL path */
+    hr = LoadTypeLib(L"activexscripthost.dll", &g_pTypeLibrary);
+    if (FAILED(hr))
     {
-        Tcl_WrongNumArgs(interp, 1, objv, "subcommand ...");
+        Tcl_SetResult(interp, "cannot load type library - loaded DLL must be "
+            "in current working directory", TCL_STATIC);
         return TCL_ERROR;
     }
 
-    /* get subcommand */
-    ret = Tcl_GetIndexFromObj(interp, objv[1], subcommandTable, "subcommand",
-        0, &subcommandIndex);
+    Tcl_CreateObjCommand(interp, AXSH_NAMESPACE "::openengine",
+        AXSH_Tcl_OpenEngine, NULL, NULL);
+
+    /* export namespace procedures */
+    Tcl_Eval(interp, "namespace eval " AXSH_NAMESPACE " {namespace export *}");
+
+    /* provide package */
+    ret = Tcl_PkgProvide(interp, AXSH_NAMESPACE, QUOTESTR(AXSH_VERSIONMAJOR)
+            "." QUOTESTR(AXSH_VERSIONMINOR));
     if (ret != TCL_OK)
         return TCL_ERROR;
 
-    /* delegate subcommand */
-    switch (subcommandIndex)
-    {
-    case 0: /* close */
-        return AXSH_Tcl_CloseScriptEngine(clientData, interp, objc, objv);
-    case 1: /* parse */
-        return AXSH_Tcl_ParseText(clientData, interp, objc, objv);
-    case 2: /* setscriptstate */
-        return AXSH_Tcl_SetScriptState(clientData, interp, objc, objv);
-    default:
-        Tcl_SetResult(interp, "internal error - unhandled subcommand",
-            TCL_STATIC);
-        return TCL_ERROR;
-    }
-
-    /* no error - but actually we should not end up here, evereyone should
-       have returned in the switch block */
     return TCL_OK;
 }
