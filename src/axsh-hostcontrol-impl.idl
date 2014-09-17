@@ -9,10 +9,10 @@ library TclActiveXScriptHost
 {
     importlib("stdole32.tlb");
 
-    /* ITclHostControl vtable */
+    /* ITclHostControl interface */
     [uuid(DE08C005-CADC-4444-90DD-E044251CB7E8), dual, hidden,
-     helpstring("Host Control Interface")]
-    interface ITclHostControlVtbl : IDispatch
+     helpstring("Tcl Host Control Interface")]
+    interface ITclHostControl : IDispatch
     {
         [id(1)] HRESULT GetStringVar([in] BSTR variable,
             [out,retval] BSTR *value);
@@ -20,11 +20,11 @@ library TclActiveXScriptHost
             [out,retval] UINT *value);
     }
 
-    /* ITclHostControl object */
+    /* TclHostControl object */
     [uuid(45397C60-A814-4c6d-A155-1F2D872B1E83),
-     helpstring("Host Control Object")]
-    coclass ITclHostControl
+     helpstring("Tcl Host Control Object")]
+    coclass TclHostControl
     {
-        [default] interface ITclHostControlVtbl;
+        [default] interface ITclHostControl;
     }
 }
