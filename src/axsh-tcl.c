@@ -7,6 +7,11 @@
  * type library is never released */
 ITypeLib *g_pTypeLibrary;
 
+static void AXSH_Tcl_EngineCommandDeleteProc(ClientData clientData)
+{
+    // TODO: move engine state cleanup code here, call only Tcl_DeleteCommandFromToken() within "close" subcommand handler
+}
+
 static int AXSH_Tcl_EngineCommandProc(
             ClientData clientData,
             Tcl_Interp *interp,
@@ -134,7 +139,8 @@ static int AXSH_Tcl_OpenEngine(
         pEngineState);
     buffer[sizeof(buffer)-1] = 0;
     pTempCmdToken = Tcl_CreateObjCommand(interp, buffer,
-        AXSH_Tcl_EngineCommandProc, pEngineState, NULL);
+        AXSH_Tcl_EngineCommandProc, pEngineState,
+        AXSH_Tcl_EngineCommandDeleteProc);
     if (pTempCmdToken == NULL)
     {
         _snprintf(buffer, sizeof(buffer), "error creating new Tcl command");
