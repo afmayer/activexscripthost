@@ -58,8 +58,6 @@ static STDMETHODIMP IActiveScriptSite_QueryInterface(
     return S_OK;
 }
 
-// Called by the script engine to get any pointers to our own host-defined
-// objects whose functions a script may directly call.
 static STDMETHODIMP IActiveScriptSite_GetItemInfo(
             AXSH_TclActiveScriptSite *this,
             LPCOLESTR objectName,
@@ -67,8 +65,8 @@ static STDMETHODIMP IActiveScriptSite_GetItemInfo(
             IUnknown **objPtr,
             ITypeInfo **typeInfo)
 {
-    if (dwReturnMask & SCRIPTINFO_IUNKNOWN) *objPtr = 0;
-    if (dwReturnMask & SCRIPTINFO_ITYPEINFO) *typeInfo = 0;
+    *objPtr = 0;
+    *typeInfo = 0;
 
     if (!wcscmp(objectName, L"tcl"))
     {
