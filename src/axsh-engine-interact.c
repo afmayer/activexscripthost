@@ -15,7 +15,7 @@ char * AXSH_InitEngineState(AXSH_EngineState *pEngineState, GUID *pEngineGuid,
 
     /* create script engine instance */
     hr = CoCreateInstance(pEngineGuid, 0, CLSCTX_ALL, &IID_IActiveScript,
-        (void **)&(pEngineState->pActiveScript)); // TODO store in temp var before assigning to struct...
+        (void **)&(pEngineState->pActiveScript));
     if (FAILED(hr))
         return "CoCreateInstance() on engine failed";
 
@@ -24,12 +24,19 @@ char * AXSH_InitEngineState(AXSH_EngineState *pEngineState, GUID *pEngineGuid,
             pActiveScript, &IID_IActiveScriptParse,
             (void **)&(pEngineState->pActiveScriptParse));
     if (FAILED(hr))
-        return "QueryInterface() for getting ActiveScriptParse object failed";
+    {
+        pRetString =
+            "QueryInterface() for getting ActiveScriptParse object failed";
+        goto cleanup1;
+    }
 
     /* allocate space for ActiveScriptSite object and init vtables */
     pTemp = malloc(sizeof(*pTemp));
     if (pTemp == NULL)
-        return "out of memory";
+    {
+        pRetString = "out of memory";
+        goto cleanup2;
+    }
     AXSH_InitActiveScriptSite(pTemp, pEngineState);
     pEngineState->pTclScriptSite = pTemp;
 
@@ -38,8 +45,8 @@ char * AXSH_InitEngineState(AXSH_EngineState *pEngineState, GUID *pEngineGuid,
             InitNew(pEngineState->pActiveScriptParse);
     if (FAILED(hr))
     {
-        free(pEngineState->pTclScriptSite);
-        return "InitNew() on ActiveScriptParse object failed";
+        pRetString = "InitNew() on ActiveScriptParse object failed";
+        goto cleanup3;
     }
 
     hr = pEngineState->pActiveScript->lpVtbl->
@@ -47,23 +54,21 @@ char * AXSH_InitEngineState(AXSH_EngineState *pEngineState, GUID *pEngineGuid,
             &pEngineState->pTclScriptSite->site);
     if (FAILED(hr))
     {
-        free(pEngineState->pTclScriptSite);
-        return "SetScriptSite() on ActiveScript object failed";
+        pRetString = "SetScriptSite() on ActiveScript object failed";
+        goto cleanup3;
     }
 
     /* allocate space for TclHostControl object and initialize it */
     pTempHostCtl = malloc(sizeof(*pTempHostCtl));
     if (pTempHostCtl == NULL)
     {
-        free(pEngineState->pTclScriptSite);
-        return "out of memory";
+        pRetString = "out of memory";
+        goto cleanup3;
     }
     pRetString = AXSH_InitHostControl(pTempHostCtl, pEngineState);
     if (pRetString != NULL)
     {
-        free(pTempHostCtl);
-        free(pEngineState->pTclScriptSite);
-        return pRetString;
+        goto cleanup4;
     }
 
     /* store pointer to TclHostControl object in engine state and AddRef() it
@@ -79,6 +84,17 @@ char * AXSH_InitEngineState(AXSH_EngineState *pEngineState, GUID *pEngineGuid,
 
     /* no error */
     return NULL;
+
+cleanup4:
+    free(pTempHostCtl);
+cleanup3:
+    free(pEngineState->pTclScriptSite);
+cleanup2:
+    pEngineState->pActiveScriptParse->lpVtbl->
+        Release(pEngineState->pActiveScriptParse);
+cleanup1:
+    pEngineState->pActiveScript->lpVtbl->Release(pEngineState->pActiveScript);
+    return pRetString;
 }
 
 char * AXSH_CleanupEngineState(AXSH_EngineState *pEngineState)
