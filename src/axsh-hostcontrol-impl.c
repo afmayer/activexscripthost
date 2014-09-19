@@ -351,9 +351,9 @@ char * AXSH_InitHostControl(AXSH_TclHostControl *this,
             "from type library";
 
     /* TypeInfo extraction successful */
-    pTempObjTypeInfo->lpVtbl->AddRef(pTempObjTypeInfo);
+    pTempObjTypeInfo->lpVtbl->AddRef(pTempObjTypeInfo); // TODO check if this AddRef() is needed
     this->pObjectTypeInfo = pTempObjTypeInfo;
-    pTempVtableTypeInfo->lpVtbl->AddRef(pTempVtableTypeInfo);
+    pTempVtableTypeInfo->lpVtbl->AddRef(pTempVtableTypeInfo); // TODO check if this AddRef() is needed
     this->pVtableTypeInfo = pTempVtableTypeInfo;
 
     /* no error */
