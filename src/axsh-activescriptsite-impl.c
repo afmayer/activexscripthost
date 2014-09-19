@@ -65,8 +65,11 @@ static STDMETHODIMP IActiveScriptSite_GetItemInfo(
             IUnknown **objPtr,
             ITypeInfo **typeInfo)
 {
-    *objPtr = 0;
-    *typeInfo = 0;
+    // TODO return E_POINTER when one of the [out] pointers is NULL (COM rule violation)
+    //      but allow workaround for buggy engines (like PerlScript) as long as
+    //      the [out] pointer is not actually written to
+    if (objPtr != NULL) *objPtr = 0;
+    if (typeInfo != NULL) *typeInfo = 0;
 
     if (!wcscmp(objectName, L"tcl"))
     {
