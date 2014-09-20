@@ -3,9 +3,12 @@
  */
 #include "axsh-include-all.h"
 
-static void AXSH_SetTclResultToHRESULTErrString(Tcl_Interp *interp,
-                                char *pBuffer, size_t bufferSize, HRESULT hr,
-                                char *pFunctionName)
+static void AXSH_SetTclResultToHRESULTErrString(
+            Tcl_Interp *interp,
+            char *pBuffer,
+            size_t bufferSize,
+            HRESULT hr,
+            char *pFunctionName)
 {
     _snprintf(pBuffer, bufferSize, "%s returned %s", pFunctionName,
         AXSH_HRESULT2String(hr));
@@ -23,8 +26,11 @@ static void AXSH_SetTclResultToVARIANT(Tcl_Interp *interp, VARIANT *pVariant)
         Tcl_SetObjResult(interp, pObject);
 }
 
-int AXSH_Tcl_CloseScriptEngine(ClientData clientData, Tcl_Interp *interp,
-                               int objc, Tcl_Obj *CONST objv[])
+int AXSH_Tcl_CloseScriptEngine(
+            ClientData clientData,
+            Tcl_Interp *interp,
+            int objc,
+            Tcl_Obj *CONST objv[])
 {
     AXSH_EngineState *pEngineState = (AXSH_EngineState *)clientData;
     char *pRetString;
@@ -46,8 +52,11 @@ int AXSH_Tcl_CloseScriptEngine(ClientData clientData, Tcl_Interp *interp,
     return TCL_OK;
 }
 
-int AXSH_Tcl_ParseText(ClientData clientData, Tcl_Interp *interp, int objc,
-                       Tcl_Obj *CONST objv[])
+int AXSH_Tcl_ParseText(
+            ClientData clientData,
+            Tcl_Interp *interp,
+            int objc,
+            Tcl_Obj *CONST objv[])
 {
     AXSH_EngineState *pEngineState = (AXSH_EngineState *)clientData;
     char buffer[128];
@@ -157,8 +166,11 @@ int AXSH_Tcl_ParseText(ClientData clientData, Tcl_Interp *interp, int objc,
     return TCL_OK;
 }
 
-int AXSH_Tcl_SetScriptState(ClientData clientData, Tcl_Interp *interp,
-                            int objc, Tcl_Obj *CONST objv[])
+int AXSH_Tcl_SetScriptState(
+            ClientData clientData,
+            Tcl_Interp *interp,
+            int objc,
+            Tcl_Obj *CONST objv[])
 {
     AXSH_EngineState *pEngineState = (AXSH_EngineState *)clientData;
     HRESULT hr;

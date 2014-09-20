@@ -33,8 +33,10 @@ typedef struct AXSH_EngineState_ {
     Tcl_Obj     *pErrorResult;
 } AXSH_EngineState;
 
-char * AXSH_InitEngineState(AXSH_EngineState *pEngineState, GUID *pEngineGuid,
-                             Tcl_Interp *pTclInterp);
+char * AXSH_InitEngineState(
+            AXSH_EngineState *pEngineState,
+            GUID *pEngineGuid,
+            Tcl_Interp *pTclInterp);
 char * AXSH_CleanupEngineState(AXSH_EngineState *pEngineState);
 
 #ifdef __cplusplus

@@ -3,8 +3,10 @@
  */
 #include "axsh-include-all.h"
 
-char * AXSH_InitEngineState(AXSH_EngineState *pEngineState, GUID *pEngineGuid,
-                             Tcl_Interp *pTclInterp)
+char * AXSH_InitEngineState(
+            AXSH_EngineState *pEngineState,
+            GUID *pEngineGuid,
+            Tcl_Interp *pTclInterp)
 {
     HRESULT hr;
     char *pRetString;

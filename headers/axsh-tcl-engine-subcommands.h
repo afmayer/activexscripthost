@@ -10,14 +10,23 @@
 extern "C" {
 #endif
 
-int AXSH_Tcl_CloseScriptEngine(ClientData clientData, Tcl_Interp *interp,
-                               int objc, Tcl_Obj *CONST objv[]);
+int AXSH_Tcl_CloseScriptEngine(
+            ClientData clientData,
+            Tcl_Interp *interp,
+            int objc,
+            Tcl_Obj *CONST objv[]);
 
-int AXSH_Tcl_ParseText(ClientData clientData, Tcl_Interp *interp, int objc,
-                       Tcl_Obj *CONST objv[]);
+int AXSH_Tcl_ParseText(
+            ClientData clientData,
+            Tcl_Interp *interp,
+            int objc,
+            Tcl_Obj *CONST objv[]);
 
-int AXSH_Tcl_SetScriptState(ClientData clientData, Tcl_Interp *interp,
-                            int objc, Tcl_Obj *CONST objv[]);
+int AXSH_Tcl_SetScriptState(
+            ClientData clientData,
+            Tcl_Interp *interp,
+            int objc,
+            Tcl_Obj *CONST objv[]);
 
 #ifdef __cplusplus
 }

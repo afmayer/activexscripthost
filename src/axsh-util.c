@@ -125,8 +125,9 @@ char * AXSH_HRESULT2String(HRESULT hr)
     return "(unknown HRESULT)";
 }
 
-char * AXSH_GetEngineCLSIDFromProgID(const wchar_t *pProgIDStringUTF16,
-                                     GUID * pGuid)
+char * AXSH_GetEngineCLSIDFromProgID(
+            const wchar_t *pProgIDStringUTF16,
+            GUID * pGuid)
 {
     ICatInformation *pCatMgrObj;
     CATID requestedCategories[1];
