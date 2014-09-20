@@ -99,7 +99,7 @@ static int AXSH_Tcl_OpenEngine(
             _snprintf(buffer, sizeof(buffer), "AXSH_StringToGuid() says '%s'",
                 pRetString);
             buffer[sizeof(buffer)-1] = 0;
-            goto failAndFreeEngineState;
+            goto errcleanup1;
         }
     }
     else
@@ -114,7 +114,7 @@ static int AXSH_Tcl_OpenEngine(
             _snprintf(buffer, sizeof(buffer), "AXSH_GetEngineCLSIDFromProgID()"
                 " says '%s'", pRetString);
             buffer[sizeof(buffer)-1] = 0;
-            goto failAndFreeEngineState;
+            goto errcleanup1;
         }
     }
 
@@ -125,7 +125,7 @@ static int AXSH_Tcl_OpenEngine(
         _snprintf(buffer, sizeof(buffer), // TODO replace this by HRESULT2String() result
             "AXSH_InitEngineState() says '%s'", pRetString);
         buffer[sizeof(buffer)-1] = 0;
-        goto failAndFreeEngineState;
+        goto errcleanup1;
     }
 
     /* add named item */
@@ -145,7 +145,7 @@ static int AXSH_Tcl_OpenEngine(
     {
         _snprintf(buffer, sizeof(buffer), "error creating new Tcl command");
         buffer[sizeof(buffer)-1] = 0;
-        goto failAndCloseEngineAndFreeEngineState;
+        goto errcleanup2;
     }
 
     /* store token for created Tcl command in engine state */
@@ -156,7 +156,7 @@ static int AXSH_Tcl_OpenEngine(
     return TCL_OK;
 
     /* the cleanup-stack */
-failAndCloseEngineAndFreeEngineState:
+errcleanup2:
     hr = pEngineState->pActiveScript->lpVtbl-> // TODO check for hr == OLESCRIPT_S_PENDING or similar
         Close(pEngineState->pActiveScript);
     if (FAILED(hr))
@@ -171,7 +171,7 @@ failAndCloseEngineAndFreeEngineState:
         Release(pEngineState->pActiveScript);
     pEngineState->pActiveScriptParse->lpVtbl->   /* ...and ActiveScriptParse */
         Release(pEngineState->pActiveScriptParse);
-failAndFreeEngineState:
+errcleanup1:
     free(pEngineState);
 
     /* finally return error string */

@@ -35,18 +35,17 @@ DECLARE_INTERFACE_ (INTERFACE, IDispatch)
 
 typedef struct AXSH_TclHostControl_ {
     /* interfaces */
-    ITclHostControl             hostCtl;
+    ITclHostControl             hostCtl; // TODO all interfaces get Ifc suffix
     IProvideMultipleClassInfo   multiClassInfo;
 
     /* private data of object */
     unsigned int      referenceCount;
     ITypeInfo         *pObjectTypeInfo;
-    ITypeInfo         *pVtableTypeInfo;
+    ITypeInfo         *pInterfaceTypeInfo;
     AXSH_EngineState  *pEngineState; /* pointer back to the engine state */
 } AXSH_TclHostControl;
 
-char * AXSH_InitHostControl(AXSH_TclHostControl *this,
-                            AXSH_EngineState *pEngineState);
+AXSH_TclHostControl * AXSH_CreateTclHostControl(AXSH_EngineState *pEngineState);
 
 #ifdef __cplusplus
 }

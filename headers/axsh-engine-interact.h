@@ -4,9 +4,6 @@
  * (C) 2012 Alexander F. Mayer
  */
 
-// TODO this module should contain all functions related to the AXSH_EngineState structure
-//      init = init all struct elements
-//      close = free all resources pointed by engine state
 #include "axsh-include-all.h"
 
 #ifdef __cplusplus

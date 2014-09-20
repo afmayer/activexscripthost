@@ -76,11 +76,15 @@ static STDMETHODIMP IActiveScriptSite_GetItemInfo(
         {
             *objPtr =
                 (IUnknown *)(&this->pEngineState->pTclHostControl->hostCtl);
+            this->pEngineState->pTclHostControl->hostCtl.lpVtbl->
+                AddRef(&this->pEngineState->pTclHostControl->hostCtl);
         }
 
         if (dwReturnMask & SCRIPTINFO_ITYPEINFO)
         {
             *typeInfo = this->pEngineState->pTclHostControl->pObjectTypeInfo;
+            this->pEngineState->pTclHostControl->pObjectTypeInfo->lpVtbl->
+                AddRef(this->pEngineState->pTclHostControl->pObjectTypeInfo);
         }
 
         return S_OK;

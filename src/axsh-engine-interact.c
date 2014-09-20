@@ -8,7 +8,6 @@ char * AXSH_InitEngineState(AXSH_EngineState *pEngineState, GUID *pEngineGuid,
 {
     HRESULT hr;
     char *pRetString;
-    AXSH_TclHostControl *pTempHostCtl;
 
     /* create script engine instance */
     hr = CoCreateInstance(pEngineGuid, 0, CLSCTX_ALL, &IID_IActiveScript,
@@ -24,7 +23,7 @@ char * AXSH_InitEngineState(AXSH_EngineState *pEngineState, GUID *pEngineGuid,
     {
         pRetString =
             "QueryInterface() for getting ActiveScriptParse object failed";
-        goto cleanup1;
+        goto errcleanup1;
     }
 
     /* allocate space for ActiveScriptSite object and init vtables */
@@ -32,7 +31,7 @@ char * AXSH_InitEngineState(AXSH_EngineState *pEngineState, GUID *pEngineGuid,
     if (pEngineState->pTclScriptSite == NULL)
     {
         pRetString = "out of memory";
-        goto cleanup2;
+        goto errcleanup2;
     }
 
     /* initialize engine */
@@ -41,7 +40,7 @@ char * AXSH_InitEngineState(AXSH_EngineState *pEngineState, GUID *pEngineGuid,
     if (FAILED(hr))
     {
         pRetString = "InitNew() on ActiveScriptParse object failed";
-        goto cleanup3;
+        goto errcleanup3;
     }
 
     hr = pEngineState->pActiveScript->lpVtbl->
@@ -50,27 +49,16 @@ char * AXSH_InitEngineState(AXSH_EngineState *pEngineState, GUID *pEngineGuid,
     if (FAILED(hr))
     {
         pRetString = "SetScriptSite() on ActiveScript object failed";
-        goto cleanup3;
+        goto errcleanup3;
     }
 
     /* allocate space for TclHostControl object and initialize it */
-    pTempHostCtl = malloc(sizeof(*pTempHostCtl));
-    if (pTempHostCtl == NULL)
+    pEngineState->pTclHostControl = AXSH_CreateTclHostControl(pEngineState);
+    if (pEngineState->pTclHostControl == NULL)
     {
         pRetString = "out of memory";
-        goto cleanup3;
+        goto errcleanup3;
     }
-    pRetString = AXSH_InitHostControl(pTempHostCtl, pEngineState);
-    if (pRetString != NULL)
-    {
-        goto cleanup4;
-    }
-
-    /* store pointer to TclHostControl object in engine state and AddRef() it
-       manually - otherwise the language engine could inadequately delete it */
-    pEngineState->pTclHostControl = pTempHostCtl;
-    pTempHostCtl->hostCtl.lpVtbl->
-        AddRef((ITclHostControl *)pTempHostCtl);
 
     /* store a pointer to the Tcl interpreter in the engine state
        this is referenced by callback functions of the
@@ -80,15 +68,13 @@ char * AXSH_InitEngineState(AXSH_EngineState *pEngineState, GUID *pEngineGuid,
     /* no error */
     return NULL;
 
-cleanup4:
-    free(pTempHostCtl);
-cleanup3:
+errcleanup3:
     pEngineState->pTclScriptSite->site.lpVtbl->
         Release(&pEngineState->pTclScriptSite->site);
-cleanup2:
+errcleanup2:
     pEngineState->pActiveScriptParse->lpVtbl->
         Release(pEngineState->pActiveScriptParse);
-cleanup1:
+errcleanup1:
     pEngineState->pActiveScript->lpVtbl->Release(pEngineState->pActiveScript);
     return pRetString;
 }
@@ -100,7 +86,7 @@ char * AXSH_CleanupEngineState(AXSH_EngineState *pEngineState)
     hr = pEngineState->pActiveScript->lpVtbl-> // TODO check for hr == OLESCRIPT_S_PENDING or similar
         Close(pEngineState->pActiveScript);
     if (FAILED(hr))
-        return "IActiveScript::Close failed";
+        return "IActiveScript::Close failed"; // TODO don't return, clean up first
 
     // TODO reactivate this better error message...
     //if (FAILED(hr))
@@ -110,6 +96,8 @@ char * AXSH_CleanupEngineState(AXSH_EngineState *pEngineState)
     //    return TCL_ERROR;
     //}
 
+    pEngineState->pTclHostControl->hostCtl.lpVtbl->
+        Release(&pEngineState->pTclHostControl->hostCtl);
     pEngineState->pTclScriptSite->site.lpVtbl->
         Release(&pEngineState->pTclScriptSite->site);
 
@@ -118,9 +106,6 @@ char * AXSH_CleanupEngineState(AXSH_EngineState *pEngineState)
         Release(pEngineState->pActiveScript);
     pEngineState->pActiveScriptParse->lpVtbl->
         Release(pEngineState->pActiveScriptParse);
-
-    /* we don't need to Release() our TclHostControl object for some reason
-       although it is manually AddRef()'d at engine state initialization */
 
     /* no error */
     return NULL;

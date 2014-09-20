@@ -10,7 +10,8 @@
  *     helper functions for initialization
  */
 
-const CLSID CLSID_ITclHostControl = {0x45397c60, 0xa814, 0x4c6d, {0xa1, 0x55,
+// TODO remove definitions of CLSID_TclHostControl and IID_ITclHostControl (include generated .h by MIDL)
+const CLSID CLSID_TclHostControl = {0x45397c60, 0xa814, 0x4c6d, {0xa1, 0x55,
     0x1f, 0x2d, 0x87, 0x2b, 0x1e, 0x83}};
 
 const IID IID_ITclHostControl = {0xde08c005, 0xcadc, 0x4444, {0x90, 0xdd,
@@ -34,11 +35,11 @@ static STDMETHODIMP_(ULONG) ITclHostControl_Release(AXSH_TclHostControl *this)
         /* Release() all COM objects we're holding pointers to */
         if (this->pObjectTypeInfo != NULL)
             this->pObjectTypeInfo->lpVtbl->Release(this->pObjectTypeInfo);
-        if (this->pVtableTypeInfo != NULL)
-            this->pVtableTypeInfo->lpVtbl->Release(this->pVtableTypeInfo);
+        if (this->pInterfaceTypeInfo != NULL)
+            this->pInterfaceTypeInfo->lpVtbl->Release(this->pInterfaceTypeInfo);
 
-        /* free() the object itself */
-        free(this);
+        /* release memory for the object */
+        CoTaskMemFree(this);
         return 0;
     }
 
@@ -80,8 +81,8 @@ static STDMETHODIMP ITclHostControl_GetTypeInfo(
             LCID lcid,
             ITypeInfo **typeInfo)
 {
-    *typeInfo = this->pVtableTypeInfo;
-    this->pVtableTypeInfo->lpVtbl->AddRef(this->pVtableTypeInfo);
+    *typeInfo = this->pInterfaceTypeInfo;
+    this->pInterfaceTypeInfo->lpVtbl->AddRef(this->pInterfaceTypeInfo);
     return S_OK;
 }
 
@@ -96,8 +97,8 @@ static STDMETHODIMP ITclHostControl_GetIDsOfNames(
     HRESULT hr;
 
     /* delegate to type info */
-    hr = this->pVtableTypeInfo->lpVtbl->GetIDsOfNames(this->pVtableTypeInfo,
-        rgszNames, cNames, rgdispid);
+    hr = this->pInterfaceTypeInfo->lpVtbl->
+        GetIDsOfNames(this->pInterfaceTypeInfo, rgszNames, cNames, rgdispid);
     return hr;
 }
 
@@ -115,7 +116,7 @@ static STDMETHODIMP ITclHostControl_Invoke(
     HRESULT hr;
 
     /* delegate to type info */
-    hr = this->pVtableTypeInfo->lpVtbl->Invoke(this->pVtableTypeInfo,
+    hr = this->pInterfaceTypeInfo->lpVtbl->Invoke(this->pInterfaceTypeInfo,
         this, id, flag, params, ret, pei, pu);
     return hr;
 }
@@ -173,7 +174,6 @@ static STDMETHODIMP ITclHostControl_GetIntVar(
    ---------------------- IProvideMultipleClassInfo ------------------------
    ------------------------------------------------------------------------- */
 // TODO IProvideMultipleClassInfo implementations
-// TODO other names for 'secondary' interface implementations
 static STDMETHODIMP IProvideMultipleClassInfo_QueryInterface(
             IProvideMultipleClassInfo *this,
             REFIID riid,
@@ -318,44 +318,51 @@ static IProvideMultipleClassInfoVtbl g_MultiClassInfoVTable = {
 /* -------------------------------------------------------------------------
    ------------------------- initialization function -----------------------
    ------------------------------------------------------------------------- */
-char * AXSH_InitHostControl(AXSH_TclHostControl *this,
-                            AXSH_EngineState *pEngineState)
+AXSH_TclHostControl * AXSH_CreateTclHostControl(AXSH_EngineState *pEngineState)
 {
-    HRESULT   hr;
-    ITypeInfo *pTempObjTypeInfo;
-    ITypeInfo *pTempVtableTypeInfo;
-
-    /* vtables */
-    this->hostCtl.lpVtbl = &g_TclHostControlVTable;
-    this->multiClassInfo.lpVtbl = &g_MultiClassInfoVTable;
-
-    /* initialize other data */
-    this->referenceCount = 0;
-    this->pEngineState = pEngineState;
-    this->pObjectTypeInfo = NULL;
-    this->pVtableTypeInfo = NULL;
+    HRESULT hr;
+    AXSH_TclHostControl *pTemp;
 
     if (g_pTypeLibrary == NULL)
-        return "type library not loaded";
+    {
+        // TODO write error message "type library not loaded"
+        return NULL;
+    }
+    pTemp = CoTaskMemAlloc(sizeof(*pTemp));
+    if (pTemp == NULL)
+    {
+        // TODO write error message "out of memory"
+        return NULL;
+    }
+    pTemp->hostCtl.lpVtbl = &g_TclHostControlVTable;
+    pTemp->multiClassInfo.lpVtbl = &g_MultiClassInfoVTable;
+    pTemp->referenceCount = 1;
+    pTemp->pObjectTypeInfo = NULL;
+    pTemp->pInterfaceTypeInfo = NULL;
+    pTemp->pEngineState = pEngineState;
 
+    /* get type info from type library */
     hr = g_pTypeLibrary->lpVtbl->GetTypeInfoOfGuid(g_pTypeLibrary,
-        &CLSID_ITclHostControl, &pTempObjTypeInfo);
+        &CLSID_TclHostControl, &pTemp->pObjectTypeInfo);
     if (FAILED(hr))
-        return "could not get ITclHostControl object type info "
-            "from type library";
-
+    {
+        // TODO write error message "could not get TclHostControl class type info from type library"
+        goto errcleanup1;
+    }
     hr = g_pTypeLibrary->lpVtbl->GetTypeInfoOfGuid(g_pTypeLibrary,
-        &IID_ITclHostControl, &pTempVtableTypeInfo);
+        &IID_ITclHostControl, &pTemp->pInterfaceTypeInfo);
     if (FAILED(hr))
-        return "could not get ITclHostControl VTable type info "
-            "from type library";
-
-    /* TypeInfo extraction successful */
-    pTempObjTypeInfo->lpVtbl->AddRef(pTempObjTypeInfo); // TODO check if this AddRef() is needed
-    this->pObjectTypeInfo = pTempObjTypeInfo;
-    pTempVtableTypeInfo->lpVtbl->AddRef(pTempVtableTypeInfo); // TODO check if this AddRef() is needed
-    this->pVtableTypeInfo = pTempVtableTypeInfo;
+    {
+        // TODO write error message "could not get ITclHostControl interface type info from type library"
+        goto errcleanup2;
+    }
 
     /* no error */
+    return pTemp;
+
+errcleanup2:
+    pTemp->pInterfaceTypeInfo->lpVtbl->Release(pTemp->pInterfaceTypeInfo);
+errcleanup1:
+    CoTaskMemFree(pTemp);
     return NULL;
 }
