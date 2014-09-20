@@ -26,10 +26,9 @@ static STDMETHODIMP_(ULONG) IActiveScriptSite_Release(
     this->referenceCount--;
     if (this->referenceCount == 0)
     {
-        free(this);
+        CoTaskMemFree(this);
         return 0;
     }
-
     return this->referenceCount;
 }
 
@@ -339,14 +338,15 @@ static IActiveScriptSiteWindowVtbl g_SiteWindowVTable = {
 /* -------------------------------------------------------------------------
    ------------------------- initialization function -----------------------
    ------------------------------------------------------------------------- */
-void AXSH_InitActiveScriptSite(AXSH_TclActiveScriptSite *this,
-                               AXSH_EngineState *pEngineState)
+AXSH_TclActiveScriptSite * AXSH_CreateTclActiveScriptSite(
+            AXSH_EngineState *pEngineState)
 {
-    /* vtables */
-    this->site.lpVtbl = &g_SiteVTable;
-    this->siteWnd.lpVtbl = &g_SiteWindowVTable;
-
-    /* data */
-    this->referenceCount = 0;
-    this->pEngineState = pEngineState;
+    AXSH_TclActiveScriptSite *pTemp = CoTaskMemAlloc(sizeof(*pTemp));
+    if (pTemp == NULL)
+        return NULL;
+    pTemp->site.lpVtbl = &g_SiteVTable;
+    pTemp->siteWnd.lpVtbl = &g_SiteWindowVTable;
+    pTemp->referenceCount = 1;
+    pTemp->pEngineState = pEngineState;
+    return pTemp;
 }

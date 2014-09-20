@@ -6,11 +6,8 @@
 char * AXSH_InitEngineState(AXSH_EngineState *pEngineState, GUID *pEngineGuid,
                              Tcl_Interp *pTclInterp)
 {
-    // TODO split into static subfunctions - each responsible for 1 element in the structure
-    //      so memory cleanup is easier
     HRESULT hr;
     char *pRetString;
-    AXSH_TclActiveScriptSite *pTemp;
     AXSH_TclHostControl *pTempHostCtl;
 
     /* create script engine instance */
@@ -31,14 +28,12 @@ char * AXSH_InitEngineState(AXSH_EngineState *pEngineState, GUID *pEngineGuid,
     }
 
     /* allocate space for ActiveScriptSite object and init vtables */
-    pTemp = malloc(sizeof(*pTemp));
-    if (pTemp == NULL)
+    pEngineState->pTclScriptSite = AXSH_CreateTclActiveScriptSite(pEngineState);
+    if (pEngineState->pTclScriptSite == NULL)
     {
         pRetString = "out of memory";
         goto cleanup2;
     }
-    AXSH_InitActiveScriptSite(pTemp, pEngineState);
-    pEngineState->pTclScriptSite = pTemp;
 
     /* initialize engine */
     hr = pEngineState->pActiveScriptParse->lpVtbl->
@@ -88,7 +83,8 @@ char * AXSH_InitEngineState(AXSH_EngineState *pEngineState, GUID *pEngineGuid,
 cleanup4:
     free(pTempHostCtl);
 cleanup3:
-    free(pEngineState->pTclScriptSite);
+    pEngineState->pTclScriptSite->site.lpVtbl->
+        Release(&pEngineState->pTclScriptSite->site);
 cleanup2:
     pEngineState->pActiveScriptParse->lpVtbl->
         Release(pEngineState->pActiveScriptParse);
@@ -114,9 +110,8 @@ char * AXSH_CleanupEngineState(AXSH_EngineState *pEngineState)
     //    return TCL_ERROR;
     //}
 
-    /* we don't need to Release() our AXSH_TclActiveScriptSite or
-       AXSH_TclHostControl objects because we never AddRef()'d it - the engine
-       will do this */
+    pEngineState->pTclScriptSite->site.lpVtbl->
+        Release(&pEngineState->pTclScriptSite->site);
 
     /* release ActiveScript and ActiveScriptParse objects */
     pEngineState->pActiveScript->lpVtbl->

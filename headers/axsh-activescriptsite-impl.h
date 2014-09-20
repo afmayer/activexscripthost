@@ -20,8 +20,8 @@ typedef struct AXSH_TclActiveScriptSite_ {
     AXSH_EngineState *pEngineState;  /* pointer back to the engine state */
 } AXSH_TclActiveScriptSite;
 
-void AXSH_InitActiveScriptSite(AXSH_TclActiveScriptSite *this,
-                               AXSH_EngineState *pEngineState);
+AXSH_TclActiveScriptSite * AXSH_CreateTclActiveScriptSite(
+            AXSH_EngineState *pEngineState);
 
 #ifdef __cplusplus
 }
