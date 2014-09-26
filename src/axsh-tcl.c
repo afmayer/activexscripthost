@@ -131,9 +131,18 @@ static int AXSH_Tcl_OpenEngine(
     }
 
     /* add named item */
-    pEngineState->pActiveScript->lpVtbl-> // TODO use at least a #define for the name of the named item
+    // TODO allow overriding the name for the TclHostControl named item (store Tcl_Obj)
+    // TODO allow prevention of AddNamedItem()
+    hr = pEngineState->pActiveScript->lpVtbl->
         AddNamedItem(pEngineState->pActiveScript, L"tcl",
         SCRIPTITEM_GLOBALMEMBERS | SCRIPTITEM_ISVISIBLE);
+    if (FAILED(hr))
+    {
+        _snprintf(buffer, sizeof(buffer), // TODO use AXSH_SetTclResultToHRESULTErrString() instead...
+            "IActiveScript::AddNamedItem returned %s", AXSH_HRESULT2String(hr));
+        buffer[sizeof(buffer)-1] = 0;
+        goto errcleanup2;
+    }
 
     /* create a Tcl command for our new engine - pass a
        pointer (client data) to the engine state when the command is handled */
