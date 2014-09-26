@@ -83,10 +83,10 @@ errcleanup1:
 
 char * AXSH_CleanupEngineState(AXSH_EngineState *pEngineState)
 {
-    HRESULT hr;
-
-    hr = pEngineState->pActiveScript->lpVtbl-> // TODO check for hr == OLESCRIPT_S_PENDING or similar
-        Close(pEngineState->pActiveScript);
+    /* we ignore the return code of IActiveScript::Close()
+        --> E_UNEXPECTED means we can't recover anyways (already closed, etc.)
+        --> OLESCRIPT_S_PENDING is not defined in any header files (unused) */
+    pEngineState->pActiveScript->lpVtbl->Close(pEngineState->pActiveScript);
 
     // TODO reactivate this better error message...
     //if (FAILED(hr))
