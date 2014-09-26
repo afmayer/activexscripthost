@@ -159,16 +159,7 @@ static int AXSH_Tcl_OpenEngine(
 
     /* the cleanup-stack */
 errcleanup2:
-    hr = pEngineState->pActiveScript->lpVtbl-> // TODO check for hr == OLESCRIPT_S_PENDING or similar
-        Close(pEngineState->pActiveScript);
-    if (FAILED(hr))
-    {
-        _snprintf(buffer, sizeof(buffer), "IActiveScript::Close (called due "
-            "to an error) returned %s", AXSH_HRESULT2String(hr));
-        buffer[sizeof(buffer)-1] = 0;
-        Tcl_SetResult(interp, buffer, TCL_VOLATILE);
-        return TCL_ERROR;
-    }
+    pEngineState->pActiveScript->lpVtbl->Close(pEngineState->pActiveScript);
     pEngineState->pActiveScript->lpVtbl->        /* release ActiveScript... */
         Release(pEngineState->pActiveScript);
     pEngineState->pActiveScriptParse->lpVtbl->   /* ...and ActiveScriptParse */
