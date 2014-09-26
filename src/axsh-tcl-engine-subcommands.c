@@ -116,11 +116,11 @@ int AXSH_Tcl_ParseText(
     hr = pEngineState->pActiveScriptParse->lpVtbl->
             ParseScriptText(pEngineState->pActiveScriptParse,
             (wchar_t *)pScriptUTF16, /* script to be parsed */
-            NULL, /* item name */
+            NULL, /* item name */ // TODO allow parameter "-itemname" in Tcl command
             NULL, /* context */
             NULL, /* end-of-script delimiter */
             0, /* source context cookie */
-            0, /* start line number */
+            0, /* start line number */ // TODO allow paramter "-startline" in Tcl command (1 based?)
             parseScriptTextFlags,
             pResultVariantPtr, /* result is stored here */
             &exceptionInfo);

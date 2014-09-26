@@ -58,7 +58,7 @@ char * AXSH_InitEngineState(
     pEngineState->pTclHostControl = AXSH_CreateTclHostControl(pEngineState);
     if (pEngineState->pTclHostControl == NULL)
     {
-        pRetString = "out of memory";
+        pRetString = "error creating TclHostControl object";
         goto errcleanup3;
     }
 
@@ -87,14 +87,6 @@ void AXSH_CleanupEngineState(AXSH_EngineState *pEngineState)
         --> E_UNEXPECTED means we can't recover anyways (already closed, etc.)
         --> OLESCRIPT_S_PENDING is not defined in any header files (unused) */
     pEngineState->pActiveScript->lpVtbl->Close(pEngineState->pActiveScript);
-
-    // TODO reactivate this better error message...
-    //if (FAILED(hr))
-    //{
-    //    AXSH_SetTclResultToHRESULTErrString(interp, buffer, sizeof(buffer), hr,
-    //        "IActiveScript::Close");
-    //    return TCL_ERROR;
-    //}
 
     pEngineState->pTclHostControl->hostCtl.lpVtbl->
         Release(&pEngineState->pTclHostControl->hostCtl);
