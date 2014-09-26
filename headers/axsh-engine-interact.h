@@ -37,7 +37,7 @@ char * AXSH_InitEngineState(
             AXSH_EngineState *pEngineState,
             GUID *pEngineGuid,
             Tcl_Interp *pTclInterp);
-char * AXSH_CleanupEngineState(AXSH_EngineState *pEngineState);
+void AXSH_CleanupEngineState(AXSH_EngineState *pEngineState);
 
 #ifdef __cplusplus
 }

@@ -81,7 +81,7 @@ errcleanup1:
     return pRetString;
 }
 
-char * AXSH_CleanupEngineState(AXSH_EngineState *pEngineState)
+void AXSH_CleanupEngineState(AXSH_EngineState *pEngineState)
 {
     /* we ignore the return code of IActiveScript::Close()
         --> E_UNEXPECTED means we can't recover anyways (already closed, etc.)
@@ -106,7 +106,4 @@ char * AXSH_CleanupEngineState(AXSH_EngineState *pEngineState)
         Release(pEngineState->pActiveScript);
     pEngineState->pActiveScriptParse->lpVtbl->
         Release(pEngineState->pActiveScriptParse);
-
-    /* no error */
-    return NULL;
 }

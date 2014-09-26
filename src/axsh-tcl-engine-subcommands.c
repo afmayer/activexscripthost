@@ -33,17 +33,8 @@ int AXSH_Tcl_CloseScriptEngine(
             Tcl_Obj *CONST objv[])
 {
     AXSH_EngineState *pEngineState = (AXSH_EngineState *)clientData;
-    char *pRetString;
-    char buffer[128];
 
-    pRetString = AXSH_CleanupEngineState(pEngineState);
-    if (pRetString != NULL)
-    {
-        _snprintf(buffer, sizeof(buffer),
-            "AXSH_CleanupEngineState() says '%s'", pRetString);
-        buffer[sizeof(buffer)-1] = 0;
-        Tcl_SetResult(interp, buffer, TCL_VOLATILE);
-    }
+    AXSH_CleanupEngineState(pEngineState);
 
     /* delete Tcl command and free space @ clientData (engine state) */
     Tcl_DeleteCommandFromToken(interp, pEngineState->pTclCommandToken);
