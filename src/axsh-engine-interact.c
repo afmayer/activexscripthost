@@ -87,8 +87,6 @@ char * AXSH_CleanupEngineState(AXSH_EngineState *pEngineState)
 
     hr = pEngineState->pActiveScript->lpVtbl-> // TODO check for hr == OLESCRIPT_S_PENDING or similar
         Close(pEngineState->pActiveScript);
-    if (FAILED(hr))
-        return "IActiveScript::Close failed"; // TODO don't return, clean up first
 
     // TODO reactivate this better error message...
     //if (FAILED(hr))
