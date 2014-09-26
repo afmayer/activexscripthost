@@ -32,14 +32,10 @@ int AXSH_Tcl_CloseScriptEngine(
             int objc,
             Tcl_Obj *CONST objv[])
 {
+    /* delete Tcl command - the command's cleanup function
+       releases the resources */
     AXSH_EngineState *pEngineState = (AXSH_EngineState *)clientData;
-
-    AXSH_CleanupEngineState(pEngineState);
-
-    /* delete Tcl command and free space @ clientData (engine state) */
     Tcl_DeleteCommandFromToken(interp, pEngineState->pTclCommandToken);
-    free(pEngineState);
-
     return TCL_OK;
 }
 

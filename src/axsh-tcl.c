@@ -9,7 +9,9 @@ ITypeLib *g_pTypeLibrary;
 
 static void AXSH_Tcl_EngineCommandDeleteProc(ClientData clientData)
 {
-    // TODO: move engine state cleanup code here, call only Tcl_DeleteCommandFromToken() within "close" subcommand handler
+    AXSH_EngineState *pEngineState = (AXSH_EngineState *)clientData;
+    AXSH_CleanupEngineState(pEngineState);
+    free(pEngineState);
 }
 
 static int AXSH_Tcl_EngineCommandProc(
