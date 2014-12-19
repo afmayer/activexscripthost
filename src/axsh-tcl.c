@@ -22,7 +22,8 @@ static int AXSH_Tcl_EngineCommandProc(
 {
     int ret;
     int subcommandIndex;
-    char *subcommandTable[] = {"close", "parse", "setscriptstate", NULL};
+    static const char *subcommandTable[] =
+        {"close", "parse", "setscriptstate", NULL};
 
     if (objc < 2)
     {

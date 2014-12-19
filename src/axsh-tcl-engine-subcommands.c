@@ -55,7 +55,8 @@ int AXSH_Tcl_ParseText(
     VARIANT *pResultVariantPtr = NULL;
     int i;
     Tcl_Obj *pScript = NULL;
-    char *optionTable[] = {"-visible", "-expression", "-persistent", NULL};
+    static const char *optionTable[] =
+        {"-visible", "-expression", "-persistent", NULL};
     EXCEPINFO exceptionInfo = {0, 0, NULL, NULL, NULL, 0, NULL, 0, 0};
 
     if (objc < 3)
@@ -164,7 +165,7 @@ int AXSH_Tcl_SetScriptState(
     int ret;
     int scriptStateAsInt;
     SCRIPTSTATE scriptState;
-    char *scriptStateTable[] = {"uninitialized", "started",
+    static const char *scriptStateTable[] = {"uninitialized", "started",
         "connected", "disconnected", "closed", "initialized", NULL};
     char buffer[128];
 
